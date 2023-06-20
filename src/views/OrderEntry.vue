@@ -78,13 +78,14 @@ const submit = async () => {
                             
                     <fieldset class="order-item-container">
                         <legend>Item List</legend>
-                    <div v-for="(item, i) in order.items" :key="i">
-                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" />
-                    </div>
+                        
+                        <div v-for="(item, i) in order.items" :key="i">
+                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" />
+                        </div>
+
+                        <!-- Add item -->
+                        <button type="button" @click="addOrderItem" class="secondary">Add item</button>
                     </fieldset>
-            
-                    <!-- Add item -->
-                    <button type="button" @click="addOrderItem" class="secondary">Add item</button>
         
                     <hr/>
         
@@ -108,7 +109,7 @@ const submit = async () => {
 <style scopedd>
 .order-form {
     margin: auto;
-    min-width: 650px;
+    /* min-width: 480px; */
 }
 .submit {
     margin-top: 20px;
