@@ -84,7 +84,7 @@ const closeModal = () => {
 
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
-    <article>
+    <article class="update-order-modal">
         <a href="#close"
         aria-label="Close"
         class="close"
@@ -93,32 +93,35 @@ const closeModal = () => {
         </a>
         <h6>#SLN: {{ currentOrder?.sln }}</h6>
         <div>
-            <section>
-                <ol>
-                    <li v-for="(item, i) in currentOrder?.items" :key="i">
-                        {{ item?.name }}  <code>{{ item?.qty }}</code>
-                    </li>
-                </ol>
-            </section>
-            <section>
-                <label for="status">
-                    <select 
-                        id="status"
-                        v-model="currentOrder.status"   
-                    >
-                        <option value="placed">Placed</option>
-                        <option value="processed">Processed</option>
-                        <option value="completed">Completed</option>
-                        <option value="recieved">Payment Recieved</option>
-                    </select>
-                </label>
-            </section>
-            <section>
-                <!-- NOTIFICATION -->
-                <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
-                        <small>{{ notification?.msg }}</small>
-                </p>
-            </section>
+            <ol>
+                <li v-for="(item, i) in currentOrder?.items" :key="i">
+                    {{ item?.name }}  <code>{{ item?.qty }}</code>
+                </li>
+            </ol>
+            
+            <label for="status">
+                <select 
+                    id="status"
+                    v-model="currentOrder.status"   
+                >
+                    <option value="placed">Placed</option>
+                    <option value="processed">Processed</option>
+                    <option value="completed">Completed</option>
+                    <option value="recieved">Payment Recieved</option>
+                </select>
+            </label>
+
+            <label for="notes">
+                <textarea
+                id="notes"
+                v-model="currentOrder.notes"
+                ></textarea>
+            </label>
+            
+            <!-- NOTIFICATION -->
+            <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
+                    <small>{{ notification?.msg }}</small>
+            </p>
         </div>
         <footer>
         <a href="#save"
@@ -158,5 +161,8 @@ const closeModal = () => {
     /* Mozilla */
     opacity: 0.6;
     font-weight: bolder;
+}
+.update-order-modal {
+    width: 600px;
 }
 </style>

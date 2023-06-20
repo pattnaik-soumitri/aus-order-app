@@ -13,7 +13,7 @@ import { products } from '../util/constants';
     <div class="grid">
         <label for="items">
             Items
-            <input list="items" placeholder="Item Name">
+            <input list="items" :modelValue="name" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
             <datalist 
                 id="items" 
                 :value="name" 
