@@ -9,14 +9,14 @@ const blankOrder = {
     customertName: '',
     orderDate: new Date(),
     salesman: '',
-    // items: []
+    items: [ {name: '', qty: 0} ]
 };
 const order = ref({...blankOrder});
 
 const notificationMsg = ref('');
 
 const addOrderItem = () => {
-    order.value.items.push({});
+    order.value.items.push({name: '', qty: 0});
 }
 
 const submit = async () => {
@@ -28,7 +28,8 @@ const submit = async () => {
         sln: (ordersSnapshot.data().count + 1),
         customerName: order.value.customertName,
         orderDate: order.value.orderDate,
-        salesman: order.value.salesman
+        salesman: order.value.salesman,
+        items: order.value.items
     }
     const docRef = await addDoc(ordersColl, docData);
     console.log("Document written with ID: ", docRef.id);
@@ -41,7 +42,6 @@ const submit = async () => {
 </script>
 
 <template>
-
     <div class="order-form grid">
         <form @submit.prevent="submit">
             <label for="customer_name">
@@ -56,7 +56,7 @@ const submit = async () => {
             <input type="text" v-model="order.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
             
             <div v-for="(item, i) in order.items" :key="i">
-                <OrderItemRow />
+                <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" />
             </div>
     
             <!-- Add item -->
@@ -81,9 +81,9 @@ const submit = async () => {
 
 <style scopedd>
 .order-form {
-    display: flex;
+    /* display: flex; */
     margin: auto;
-    width: 600px;
+    width: 720px;
 }
 .submit {
     margin-top: 20px;
