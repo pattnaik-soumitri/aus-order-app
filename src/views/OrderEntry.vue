@@ -60,7 +60,7 @@ const submit = async () => {
     <section>
         <div class="grid">
             <div class="order-form">
-                <h6>Order Entry</h6>
+                <h5>Order Entry</h5>
                 <form @submit.prevent="submit">
                     <label for="customer_name">
                         Customer Name

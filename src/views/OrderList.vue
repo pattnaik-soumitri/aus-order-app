@@ -53,7 +53,7 @@ const closeModal = () => {
     <section>
         <div class="grid">
             <div class="order-list-container">
-                <h6>Order List</h6>
+                <h5>Order List</h5>
                 <figure>
                     <table role="grid">
                         <thead>
