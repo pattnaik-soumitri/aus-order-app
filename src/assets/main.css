@@ -1,0 +1,10 @@
+.notification {
+    border-radius: 5px;
+    padding: 10px;
+}
+.notification.success {
+    border: solid 1px green;
+}
+.notification.failed {
+    border: solid 1px red;
+}

@@ -9,7 +9,8 @@ const blankOrder = {
     customertName: '',
     orderDate: new Date(),
     salesman: '',
-    items: [ {name: '', qty: 0} ]
+    items: [ {name: '', qty: 0} ],
+    status: 'placed'
 };
 const order = ref({...blankOrder});
 
@@ -29,13 +30,14 @@ const submit = async () => {
         customerName: order.value.customertName,
         orderDate: order.value.orderDate,
         salesman: order.value.salesman,
-        items: order.value.items
+        items: order.value.items,
+        status: order.value.status
     }
     const docRef = await addDoc(ordersColl, docData);
     console.log("Document written with ID: ", docRef.id);
 
     notificationMsg.value = `Order created | sln: ${docData.sln}`;
-    order.value = {...blankOrder};
+    order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
     loading.value = false;
 }
 
@@ -91,12 +93,5 @@ const submit = async () => {
 }
 .submit {
     margin-top: 20px;
-}
-.notification {
-    border: solid 1px green;
-    /* background-color: lightgreen; */
-    border-radius: 5px;
-    /* color: black; */
-    padding: 10px;
 }
 </style>
