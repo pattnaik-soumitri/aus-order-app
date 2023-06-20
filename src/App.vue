@@ -17,6 +17,12 @@ import { RouterLink, RouterView } from 'vue-router'
   <main class="container">
     <RouterView />
   </main>
+
+  <footer>
+    <div class="footer">
+      <small>Made with 💛 by <a href="https://in.linkedin.com/in/soumitri-pattnaik-69766a112" target="_blank">Soumitri</a></small>
+    </div>
+  </footer>
 </template>
 
 
@@ -31,5 +37,14 @@ nav {
 nav ul {
   margin-left: 10px;
   margin-right: 10px;
+}
+
+.footer {
+  margin: auto;
+  width: 100vh;
+  text-align: center;
+}
+.footer small {
+  font-size: small;
 }
 </style>
