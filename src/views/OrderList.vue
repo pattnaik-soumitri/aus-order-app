@@ -163,6 +163,6 @@ const closeModal = () => {
     font-weight: bolder;
 }
 .update-order-modal {
-    width: 600px;
+    /* width: 600px; */
 }
 </style>
