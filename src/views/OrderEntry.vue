@@ -21,7 +21,8 @@ const blankOrder = {
     orderDate: getFormattedDate(new Date()),
     salesman: '',
     items: [ {name: '', qty: 0} ],
-    status: 'placed'
+    status: 'placed',
+    notes: ''
 };
 const order = ref({...blankOrder});
 
@@ -42,7 +43,8 @@ const submit = async () => {
         orderDate: order.value.orderDate,
         salesman: order.value.salesman,
         items: order.value.items,
-        status: order.value.status
+        status: order.value.status,
+        notes: order.value.notes
     }
     const docRef = await addDoc(ordersColl, docData);
     console.log("Document written with ID: ", docRef.id);
@@ -70,6 +72,9 @@ const submit = async () => {
             
                     <label for="salesman">Salesman</label>
                     <input type="text" v-model="order.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+
+                    <label for="notes">Notes</label>
+                    <textarea v-model="order.notes" id="notes" name="notes" placeholder="notes"></textarea>
                     
                     <div v-for="(item, i) in order.items" :key="i">
                         <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" />

@@ -63,6 +63,7 @@ const closeModal = () => {
                             <th scope="col">Date</th>
                             <th scope="col">Salesman</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Notes</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +73,7 @@ const closeModal = () => {
                                 <td>{{ order?.orderDate }}</td>
                                 <td>{{ order?.salesman }}</td>
                                 <td><code v-if="order?.status">{{ order?.status }}</code></td>
+                                <td>{{ order?.notes }}</td>
                             </tr>
                         </tbody>
                     </table>
