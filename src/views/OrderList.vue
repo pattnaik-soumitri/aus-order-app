@@ -1,12 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { db } from '../fb.js';
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, query, getDocs, orderBy } from "firebase/firestore";
 
 const orders = ref([]);
 
 onMounted(async () => {
-    const q = query(collection(db, "orders"));
+    const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
