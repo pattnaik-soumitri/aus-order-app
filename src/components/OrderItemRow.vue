@@ -45,5 +45,6 @@ import { products } from '../util/constants';
 <style scoped>
 .danger {
     color: red;
+    font-size: x-large;
 }
 </style>

@@ -75,10 +75,13 @@ const submit = async () => {
 
                     <label for="notes">Notes</label>
                     <textarea v-model="order.notes" id="notes" name="notes" placeholder="notes"></textarea>
-                    
+                            
+                    <fieldset class="order-item-container">
+                        <legend>Item List</legend>
                     <div v-for="(item, i) in order.items" :key="i">
                         <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" />
                     </div>
+                    </fieldset>
             
                     <!-- Add item -->
                     <button type="button" @click="addOrderItem" class="secondary">Add item</button>
@@ -105,9 +108,19 @@ const submit = async () => {
 <style scopedd>
 .order-form {
     margin: auto;
-    max-width: 720px;
+    min-width: 650px;
 }
 .submit {
     margin-top: 20px;
+}
+.order-item-container {
+    border: solid 1px gray;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
 }
 </style>
