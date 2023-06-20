@@ -41,7 +41,7 @@ nav ul {
 
 .footer {
   margin: auto;
-  width: 100vh;
+  width: 100vw;
   text-align: center;
 }
 .footer small {
