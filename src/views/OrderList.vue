@@ -5,6 +5,9 @@ import { collection, query, getDocs, orderBy } from "firebase/firestore";
 
 const orders = ref([]);
 
+const currentOrder = ref(null);
+const modalIsOpen = ref(false);
+
 onMounted(async () => {
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
 
@@ -33,11 +36,11 @@ onMounted(async () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders" :key="order.sln">
-                                <td>{{ order.sln }}</td>
-                                <td>{{ order.customerName }}</td>
-                                <td>{{ order.orderDate }}</td>
-                                <td>{{ order.salesman }}</td>
+                            <tr v-for="order in orders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; modalIsOpen = true;">
+                                <td>{{ order?.sln }}</td>
+                                <td>{{ order?.customerName }}</td>
+                                <td>{{ order?.orderDate }}</td>
+                                <td>{{ order?.salesman }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -45,6 +48,36 @@ onMounted(async () => {
             </div>
         </div>
     </section>
+
+    <!-- Modal -->
+    <dialog id="order-detail" :open="modalIsOpen">
+    <article>
+        <a href="#close"
+        aria-label="Close"
+        class="close"
+        data-target="order-detail"
+        @click="currentOrder = null; modalIsOpen = false;">
+        </a>
+        <h6>#SLN: {{ currentOrder?.sln }}</h6>
+        <div>
+            <ol>
+                <li v-for="(item, i) in currentOrder?.items" :key="i">
+                    {{ item?.name }}  <code>{{ item?.qty }}</code>
+                </li>
+            </ol>
+        </div>
+        <footer>
+        <a href="#close"
+            role="button"
+            class="secondary"
+            data-target="modal-example"
+            @click="currentOrder = null; modalIsOpen = false;">
+            Close
+        </a>
+        </footer>
+    </article>
+    </dialog>
+
 </template>
 
 
@@ -52,5 +85,11 @@ onMounted(async () => {
 .order-list-container {
     max-width: 900px;
     margin: auto;
+}
+.order-item-row {
+    cursor: pointer;
+}
+.order-item-row:hover {
+    background-color: lightgray;
 }
 </style>
