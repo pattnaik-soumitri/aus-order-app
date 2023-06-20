@@ -5,9 +5,20 @@ import { collection, addDoc, getCountFromServer } from "firebase/firestore";
 import { db } from '../fb.js';
 
 const loading = ref(false);
+const getFormattedDate = (date) => {
+  var year = date.getFullYear();
+
+  var month = (1 + date.getMonth()).toString();
+  month = month.length > 1 ? month : '0' + month;
+
+  var day = date.getDate().toString();
+  day = day.length > 1 ? day : '0' + day;
+  
+  return year + '-' + month + '-' + day;
+}
 const blankOrder = {
     customertName: '',
-    orderDate: new Date(),
+    orderDate: getFormattedDate(new Date()),
     salesman: '',
     items: [ {name: '', qty: 0} ],
     status: 'placed'
