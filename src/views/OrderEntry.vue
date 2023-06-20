@@ -42,48 +42,51 @@ const submit = async () => {
 </script>
 
 <template>
-    <div class="order-form grid">
-        <form @submit.prevent="submit">
-            <label for="customer_name">
-                Customer Name
-                <input type="text" v-model="order.customertName" id="customer_name" name="customer_name" placeholder="Customer name" required>
-            </label>
+    <section>
+        <div class="grid">
+            <div class="order-form">
+                <form @submit.prevent="submit">
+                    <label for="customer_name">
+                        Customer Name
+                        <input type="text" v-model="order.customertName" id="customer_name" name="customer_name" placeholder="Customer name" required>
+                    </label>
+                    
+                    <label for="date">Date</label>
+                    <input type="date" v-model="order.orderDate" id="date" name="date" placeholder="Date" required>
             
-            <label for="date">Date</label>
-            <input type="date" v-model="order.orderDate" id="date" name="date" placeholder="Date" required>
-    
-            <label for="salesman">Salesman</label>
-            <input type="text" v-model="order.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+                    <label for="salesman">Salesman</label>
+                    <input type="text" v-model="order.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+                    
+                    <div v-for="(item, i) in order.items" :key="i">
+                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" />
+                    </div>
             
-            <div v-for="(item, i) in order.items" :key="i">
-                <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" />
+                    <!-- Add item -->
+                    <button type="button" @click="addOrderItem" class="secondary">Add item</button>
+        
+                    <hr/>
+        
+                    <!-- Button -->
+                    <button type="submit" class="submit" :aria-busy="loading">Submit</button>
+        
+                    <!-- {{ order }} -->
+        
+                    <!-- NOTIFICATION -->
+                    <div v-if="notificationMsg" class="notification">
+                        <small>{{ notificationMsg }}</small>
+                    </div>
+            
+                </form>
             </div>
-    
-            <!-- Add item -->
-            <button type="button" @click="addOrderItem" class="secondary">Add item</button>
-
-            <hr/>
-
-            <!-- Button -->
-            <button type="submit" class="submit" :aria-busy="loading">Submit</button>
-
-            <!-- {{ order }} -->
-
-            <!-- NOTIFICATION -->
-            <div v-if="notificationMsg" class="notification">
-                <small>{{ notificationMsg }}</small>
-            </div>
-    
-        </form>
-    </div>
+        </div>
+    </section>
 </template>
 
 
 <style scopedd>
 .order-form {
-    /* display: flex; */
     margin: auto;
-    width: 720px;
+    max-width: 720px;
 }
 .submit {
     margin-top: 20px;

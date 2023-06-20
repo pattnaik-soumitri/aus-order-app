@@ -6,7 +6,7 @@ import { RouterLink, RouterView } from 'vue-router'
   <header>
     <nav>
       <ul>
-        <li><h4><RouterLink class="logo-link contrast" to="/">ORDERS</RouterLink></h4></li>
+        <li><RouterLink class="logo-link contrast" to="/">ORDERS</RouterLink></li>
       </ul>
       <ul>
         <li><RouterLink to="orders" class="contrast">Order List</RouterLink></li>
@@ -23,5 +23,13 @@ import { RouterLink, RouterView } from 'vue-router'
 <style scoped>
 .logo-link {
   text-decoration: none;
+}
+nav {
+  border-bottom: solid 1px gray;
+}
+
+nav ul {
+  margin-left: 10px;
+  margin-right: 10px;
 }
 </style>
