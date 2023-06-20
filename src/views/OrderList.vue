@@ -12,6 +12,7 @@ const orders = ref([]);
 
 const currentOrder = ref(null);
 const modalIsOpen = ref(false);
+const isLoading = ref(false);
 
 onMounted(async () => {
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
@@ -24,6 +25,7 @@ onMounted(async () => {
 });
 
 const updateStatus = async () => {
+    isLoading.value = true;
     const docRef = doc(db, "orders", currentOrder.value.id);
     try {
         await updateDoc(docRef, {status: currentOrder.value.status});
@@ -33,6 +35,7 @@ const updateStatus = async () => {
         notification.value.success = false;
         notification.value.msg = 'Failed.';
     }
+    isLoading.value = false;
 }
 
 const closeModal = () => {
@@ -120,6 +123,7 @@ const closeModal = () => {
             role="button"
             class="prinary"
             data-target="order-detail"
+            :aria-busy="isLoading"
             @click="updateStatus">
             Save
         </a>
@@ -146,6 +150,11 @@ const closeModal = () => {
     cursor: pointer;
 }
 .order-item-row:hover {
-    background-color: lightgray;
+    filter: alpha(opacity=60);
+    /* IE */
+    -moz-opacity: 0.6;
+    /* Mozilla */
+    opacity: 0.6;
+    font-weight: bolder;
 }
 </style>
