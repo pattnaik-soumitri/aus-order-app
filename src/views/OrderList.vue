@@ -22,24 +22,26 @@ onMounted(async () => {
         <div class="grid">
             <div class="order-list-container">
                 <h6>Order List</h6>
-                <table role="grid">
-                    <thead>
-                        <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Customer Name</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Salesman</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="order in orders" :key="order.sln">
-                            <td>{{ order.sln }}</td>
-                            <td>{{ order.customerName }}</td>
-                            <td>{{ order.orderDate }}</td>
-                            <td>{{ order.salesman }}</td>
-                        </tr>
-                    </tbody>
+                <figure>
+                    <table role="grid">
+                        <thead>
+                            <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Customer Name</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Salesman</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders" :key="order.sln">
+                                <td>{{ order.sln }}</td>
+                                <td>{{ order.customerName }}</td>
+                                <td>{{ order.orderDate }}</td>
+                                <td>{{ order.salesman }}</td>
+                            </tr>
+                        </tbody>
                     </table>
+                </figure>
             </div>
         </div>
     </section>
