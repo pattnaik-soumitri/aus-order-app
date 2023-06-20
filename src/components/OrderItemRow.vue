@@ -13,7 +13,8 @@ import { products } from '../util/constants';
     <div class="grid">
         <label for="items">
             Items
-            <select 
+            <input list="items" placeholder="Item Name">
+            <datalist 
                 id="items" 
                 :value="name" 
                 @input="$emit('update:name', $event.target.value)"
@@ -21,7 +22,7 @@ import { products } from '../util/constants';
             >
             <option value="" selected>Select an item</option>
             <option v-for="(product, i) in products" :key="i" :value="product">{{ product }}</option>
-            </select>
+            </datalist>
         </label>
 
         <label for="qty">
