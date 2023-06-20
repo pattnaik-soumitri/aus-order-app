@@ -148,7 +148,7 @@ const closeModal = () => {
 
 <style scoped>
 .order-list-container {
-    max-width: 900px;
+    /* max-width: 900px; */
     margin: auto;
 }
 .order-item-row {
