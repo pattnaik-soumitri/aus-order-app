@@ -124,7 +124,7 @@ const closeModal = () => {
             </p>
         </div>
         <footer>
-        <a href="#save"
+        <a href="#"
             role="button"
             class="prinary"
             data-target="order-detail"
@@ -132,7 +132,7 @@ const closeModal = () => {
             @click="updateStatus">
             Save
         </a>
-        <a href="#close"
+        <a href="#"
             role="button"
             class="secondary"
             data-target="order-detail"
