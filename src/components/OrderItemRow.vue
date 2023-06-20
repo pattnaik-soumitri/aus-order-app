@@ -1,7 +1,8 @@
 <script setup>
 defineProps({
-  name: String,
-  qty: Number
+    index: Number,
+    name: String,
+    qty: Number
 })
 
 defineEmits(['update:name', 'update:qty'])
@@ -12,7 +13,8 @@ import { products } from '../util/constants';
 <template>
     <div class="grid">
         <label for="items">
-            Items
+            <a href="#" @click.prevent="$emit('delete-item', index)" class="danger"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            Item #{{ index + 1 }}
             <input list="items" :modelValue="name" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
             <datalist 
                 id="items" 
@@ -35,6 +37,13 @@ import { products } from '../util/constants';
             name="qty" 
             placeholder="Qty" 
             required>
+
         </label>
     </div>
 </template>
+
+<style scoped>
+.danger {
+    color: red;
+}
+</style>
