@@ -79,7 +79,7 @@ const submit = async () => {
                     <textarea v-model="order.notes" id="notes" name="notes" placeholder="notes"></textarea>
                             
                     <fieldset class="order-item-container">
-                        <legend>Item List</legend>
+                        <legend><label>Item List</label></legend>
                         
                         <div v-for="(item, i) in order.items" :key="i">
                             <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" />

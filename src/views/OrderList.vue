@@ -126,21 +126,23 @@ const closeModal = () => {
             </p>
         </div>
         <footer>
-        <a href="#"
-            role="button"
-            class="prinary"
-            data-target="order-detail"
-            :aria-busy="isLoading"
-            @click="updateStatus">
-            Save
-        </a>
-        <a href="#"
-            role="button"
-            class="secondary"
-            data-target="order-detail"
-            @click="closeModal">
-            Close
-        </a>
+        <div class="grid">
+            <button
+                role="button"
+                class="prinary"
+                data-target="order-detail"
+                :aria-busy="isLoading"
+                @click="updateStatus">
+                Save
+            </button>
+            <button
+                role="button"
+                class="secondary"
+                data-target="order-detail"
+                @click="closeModal">
+                Close
+            </button>
+        </div>
         </footer>
     </article>
     </dialog>

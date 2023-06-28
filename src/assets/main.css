@@ -8,3 +8,60 @@
 .notification.failed {
     border: solid 1px red;
 }
+
+
+/* Lime Light scheme (Default) */
+/* Can be forced with data-theme="light" */
+[data-theme="light"],
+:root:not([data-theme="dark"]) {
+  --primary: #c0ca33;
+  --primary-hover: #afb42b;
+  --primary-focus: rgba(192, 202, 51, 0.125);
+  --primary-inverse: rgba(0, 0, 0, 0.75);
+}
+
+/* Lime Dark scheme (Auto) */
+/* Automatically enabled if user has Dark mode enabled */
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --primary: #c0ca33;
+    --primary-hover: #cddc39;
+    --primary-focus: rgba(192, 202, 51, 0.25);
+    --primary-inverse: rgba(0, 0, 0, 0.75);
+  }
+}
+
+/* Lime Dark scheme (Forced) */
+/* Enabled if forced with data-theme="dark" */
+[data-theme="dark"] {
+  --primary: #c0ca33;
+  --primary-hover: #cddc39;
+  --primary-focus: rgba(192, 202, 51, 0.25);
+  --primary-inverse: rgba(0, 0, 0, 0.75);
+}
+
+/* Lime (Common styles) */
+:root {
+  --form-element-active-border-color: var(--primary);
+  --form-element-focus-color: var(--primary-focus);
+  --switch-color: var(--primary-inverse);
+  --switch-checked-background-color: var(--primary);
+}
+
+h1::first-letter,h2::first-letter,h3::first-letter,h4::first-letter,h5::first-letter,h6::first-letter {
+    color: var(--primary);
+    font-weight: bolder;
+    font-size: 150%;
+}
+/* a::first-letter {
+    color: var(--primary);
+    font-weight: bolder;
+} */
+label::first-letter {
+    color: var(--primary);
+    font-weight: bolder;
+}
+table thead tr th::first-letter {
+    color: var(--primary);
+    font-weight: bolder;
+}

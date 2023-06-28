@@ -22,7 +22,7 @@ watch(isLoggedIn, (newVal, oldVal) => {
   <header>
     <nav>
       <ul>
-        <li><RouterLink class="logo-link contrast" to="/">ORDERS</RouterLink></li>
+        <li><RouterLink class="logo-link contrast" to="/"><strong>ORDERS</strong></RouterLink></li>
       </ul>
       <ul>
         <li><RouterLink to="orders" v-if="proxyIsLoggedIn" class="contrast">Order List</RouterLink></li>
@@ -48,8 +48,12 @@ watch(isLoggedIn, (newVal, oldVal) => {
 .logo-link {
   text-decoration: none;
 }
+.logo-link::first-letter {
+  font-size: 150%;
+  color: var(--primary);
+}
 nav {
-  border-bottom: solid 1px gray;
+  border-bottom: solid 1px var(--secondary);
 }
 
 nav ul {
