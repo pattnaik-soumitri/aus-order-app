@@ -26,7 +26,7 @@ const handleLogin = async () => {
         <form class="login-form" @submit.prevent="handleLogin">
             <article>
                 <header>
-                    <strong>Login</strong>
+                    <h3>Login</h3>
                 </header>
 
                 <label for="email">Email</label>

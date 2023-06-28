@@ -3,6 +3,7 @@ import OrderItemRow from '../components/OrderItemRow.vue';
 import { ref } from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
 import { db } from '../fb.js';
+import { useSessionStore } from '../stores/userSessionStore';
 
 const loading = ref(false);
 const getFormattedDate = (date) => {
@@ -17,7 +18,7 @@ const getFormattedDate = (date) => {
   return year + '-' + month + '-' + day;
 }
 const blankOrder = {
-    customertName: '',
+    customerName: '',
     orderDate: getFormattedDate(new Date()),
     salesman: '',
     items: [ {name: '', qty: 0} ],
@@ -39,12 +40,13 @@ const submit = async () => {
 
     const docData = {
         sln: (ordersSnapshot.data().count + 1),
-        customerName: order.value.customertName,
+        customerName: order.value.customerName,
         orderDate: order.value.orderDate,
         salesman: order.value.salesman,
         items: order.value.items,
         status: order.value.status,
-        notes: order.value.notes
+        notes: order.value.notes,
+        createdBy: useSessionStore().currentUser.email
     }
     const docRef = await addDoc(ordersColl, docData);
     console.debug("Document written with ID: ", docRef.id);
@@ -64,7 +66,7 @@ const submit = async () => {
                 <form @submit.prevent="submit">
                     <label for="customer_name">
                         Customer Name
-                        <input type="text" v-model="order.customertName" id="customer_name" name="customer_name" placeholder="Customer name" required>
+                        <input type="text" v-model="order.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
                     </label>
                     
                     <label for="date">Date</label>
@@ -106,7 +108,7 @@ const submit = async () => {
 </template>
 
 
-<style scopedd>
+<style scoped>
 .order-form {
     margin: auto;
     /* min-width: 480px; */

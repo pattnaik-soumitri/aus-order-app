@@ -30,6 +30,7 @@ export const useSessionStore = defineStore('session', () => {
             currentUser.value.isLoggedIn = true;
             currentUser.value.loginTime = new Date();
             currentUser.value.fbUser = userCredential.user;
+            currentUser.value.email = userCredential.user.email;
 
             currentUser.value.isLoading = false;
             return { currentUser: currentUser.value, error: null };
