@@ -2,19 +2,21 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 import { auth } from '../fb';
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 export const useSessionStore = defineStore('session', () => {
   
-    // Logged in user info
-    const currentUser = ref({
+    const blankUser = {
         fbUser: null,
         isLoggedIn: false,
         email: '',
         loginTime: null,
 
         isLoading: false,
-    });
+    };
+
+    // Logged in user info
+    const currentUser = ref({...blankUser});
 
     // Service / function (not setter)
     const login = async (email, password) => {
@@ -22,7 +24,7 @@ export const useSessionStore = defineStore('session', () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             // Signed in 
-            console.log("login success!", userCredential.user);
+            console.debug("login success!", userCredential.user);
 
             // Set state
             currentUser.value.isLoggedIn = true;
@@ -40,6 +42,17 @@ export const useSessionStore = defineStore('session', () => {
         }
     }
 
+    const isLoggedIn = () => currentUser.value.isLoggedIn;
 
-  return { currentUser, login };
+    //
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            currentUser.value = {...blankUser}
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+  return { currentUser, login, logout, isLoggedIn };
 });

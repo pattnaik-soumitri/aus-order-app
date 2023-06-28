@@ -1,5 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import OrderEntry from '../views/OrderEntry.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import OrderEntry from '../views/OrderEntry.vue';
+import OrderList from '../views/OrderList.vue';
+import { useSessionStore } from '../stores/userSessionStore';
+
+const authCheck = () => {
+  const session = useSessionStore();
+  if(!session.currentUser.isLoggedIn) {
+    return 'login';
+  }
+  return session.currentUser.isLoggedIn;
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,12 +17,18 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: OrderEntry
+      component: OrderEntry,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/orders',
       name: 'orders',
-      component: () => import('../views/OrderList.vue')
+      component: OrderList,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/login',
@@ -21,5 +37,8 @@ const router = createRouter({
     }
   ]
 })
+
+// Global auth guard
+router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
 
 export default router

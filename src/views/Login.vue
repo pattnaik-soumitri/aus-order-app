@@ -13,7 +13,6 @@ const emptyLoginRequest = {
 const loginRequest = ref({...emptyLoginRequest, error: null});
 
 const handleLogin = async () => {
-    console.log(loginRequest.value);
     const res = await login(loginRequest.value.email, loginRequest.value.password);
     loginRequest.value.error = res.error;
     if(res.error == null) {

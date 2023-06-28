@@ -1,5 +1,21 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, watch, computed } from 'vue';
+import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
+import { useSessionStore } from './stores/userSessionStore';
+const { isLoggedIn, logout } = useSessionStore();
+const router = useRouter();
+const route = useRoute();
+const path = computed(() => route.path);
+
+const proxyIsLoggedIn = ref(false);
+
+// watch works directly on a ref
+watch(isLoggedIn, (newVal, oldVal) => {
+  proxyIsLoggedIn.value = newVal;
+  if(!newVal) {
+    router.push('login');
+  }
+});
 </script>
 
 <template>
@@ -9,8 +25,9 @@ import { RouterLink, RouterView } from 'vue-router'
         <li><RouterLink class="logo-link contrast" to="/">ORDERS</RouterLink></li>
       </ul>
       <ul>
-        <li><RouterLink to="orders" class="contrast">Order List</RouterLink></li>
-        <li><RouterLink to="login" class="contrast">Login</RouterLink></li>
+        <li><RouterLink to="orders" v-if="proxyIsLoggedIn" class="contrast">Order List</RouterLink></li>
+        <li><RouterLink to="login" v-if="!proxyIsLoggedIn && path != '/login'" class="contrast">Login</RouterLink></li>
+        <li v-if="proxyIsLoggedIn"><a href="#" @click.prevent="logout" class="contrast">Logout</a></li>
       </ul>
     </nav>
   </header>

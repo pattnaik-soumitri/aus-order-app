@@ -47,7 +47,7 @@ const submit = async () => {
         notes: order.value.notes
     }
     const docRef = await addDoc(ordersColl, docData);
-    console.log("Document written with ID: ", docRef.id);
+    console.debug("Document written with ID: ", docRef.id);
 
     notificationMsg.value = `Order created | sln: ${docData.sln}`;
     order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
