@@ -10,6 +10,7 @@ import { RouterLink, RouterView } from 'vue-router'
       </ul>
       <ul>
         <li><RouterLink to="orders" class="contrast">Order List</RouterLink></li>
+        <li><RouterLink to="login" class="contrast">Login</RouterLink></li>
       </ul>
     </nav>
   </header>
