@@ -59,11 +59,12 @@ const closeModal = () => {
                         <thead>
                             <tr>
                             <th scope="col">#</th>
-                            <th scope="col">Customer Name</th>
+                            <th scope="col">Customer</th>
                             <th scope="col">Date</th>
-                            <th scope="col">Salesman</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Salesman</th>
                             <th scope="col">Notes</th>
+                            <th scope="col">Created By</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,9 +72,10 @@ const closeModal = () => {
                                 <td>{{ order?.sln }}</td>
                                 <td>{{ order?.customerName }}</td>
                                 <td>{{ order?.orderDate }}</td>
-                                <td>{{ order?.salesman }}</td>
                                 <td><code v-if="order?.status">{{ order?.status }}</code></td>
+                                <td>{{ order?.salesman }}</td>
                                 <td>{{ order?.notes }}</td>
+                                <td>{{ order?.createdBy }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -149,7 +151,7 @@ const closeModal = () => {
 <style scoped>
 .order-list-container {
     /* max-width: 900px; */
-    margin: auto;
+    /* margin: auto; */
 }
 .order-item-row {
     cursor: pointer;
@@ -161,8 +163,5 @@ const closeModal = () => {
     /* Mozilla */
     opacity: 0.6;
     font-weight: bolder;
-}
-.update-order-modal {
-    /* width: 600px; */
 }
 </style>
