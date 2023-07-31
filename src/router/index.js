@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import OrderEntry from '../views/OrderEntry.vue';
 import OrderList from '../views/OrderList.vue';
-import { useSessionStore } from '../stores/userSessionStore';
+import { useSessionStore } from '@/stores/userSessionStore';
 
 const authCheck = () => {
   const session = useSessionStore();
@@ -19,7 +19,8 @@ const router = createRouter({
       name: 'home',
       component: OrderEntry,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Aus Order App'
       }
     },
     {
@@ -27,18 +28,26 @@ const router = createRouter({
       name: 'orders',
       component: OrderList,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Orders'
       }
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/Login.vue')
+      component: () => import('../views/Login.vue'),
+      meta: {
+        title: 'Login'
+      }
     }
   ]
 })
 
 // Global auth guard
-router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
+router.beforeEach((to, from, next) => {
+  to?.meta?.requiresAuth ? authCheck() : true;
+  window.document.title = to.meta && to.meta.title ? to.meta.title : 'Aus Order App';
+  next();
+});
 
 export default router
