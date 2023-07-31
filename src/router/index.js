@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import OrderEntry from '../views/OrderEntry.vue';
 import OrderList from '../views/OrderList.vue';
-import { useSessionStore } from '@/stores/userSessionStore';
+import { useSessionStore } from '../stores/userSessionStore';
 
 const authCheck = () => {
   const session = useSessionStore();
@@ -44,10 +44,9 @@ const router = createRouter({
 })
 
 // Global auth guard
-router.beforeEach((to, from, next) => {
-  to?.meta?.requiresAuth ? authCheck() : true;
-  window.document.title = to.meta && to.meta.title ? to.meta.title : 'Aus Order App';
-  next();
-});
+router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
+router.afterEach((toRoute, fromRoute) => {
+  window.document.title = toRoute.meta && toRoute.meta.title ? toRoute.meta.title : 'Aus Order App';
+})
 
 export default router
