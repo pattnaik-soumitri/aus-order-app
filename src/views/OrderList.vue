@@ -93,7 +93,7 @@ const closeModal = () => {
         data-target="order-detail"
         @click="closeModal">
         </a>
-        <h6>#SLN: {{ currentOrder?.sln }}</h6>
+        <h6>#SLN: {{ currentOrder?.sln }} <span><button class="btn-edit">Edit</button></span></h6>
         <div>
             <ol>
                 <li v-for="(item, i) in currentOrder?.items" :key="i">
@@ -165,5 +165,13 @@ const closeModal = () => {
     /* Mozilla */
     opacity: 0.6;
     font-weight: bolder;
+}
+
+.btn-edit {
+    width: 150px;
+    height: auto;
+    text-align: center;
+    display: inline;
+    margin-left: 15%;
 }
 </style>

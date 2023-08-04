@@ -44,7 +44,7 @@ const router = createRouter({
 })
 
 // Global auth guard
-router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
+// router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
 router.afterEach((toRoute, fromRoute) => {
   window.document.title = toRoute.meta && toRoute.meta.title ? toRoute.meta.title : 'Aus Order App';
 })
