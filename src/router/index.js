@@ -20,7 +20,7 @@ const router = createRouter({
       component: OrderEntry,
       meta: {
         requiresAuth: true,
-        title: 'Aus Order App'
+        title: 'Order Entry Form'
       }
     },
     {

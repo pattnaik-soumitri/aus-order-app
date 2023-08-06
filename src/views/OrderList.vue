@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import OrderItemRow from '../components/OrderItemRow.vue';
 import { db } from '../fb.js';
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
@@ -47,6 +48,10 @@ const closeModal = () => {
     }
 }
 
+const addOrderItem = () => {
+	currentOrder.value.items.push({ name: '', qty: 0 });
+}
+
 </script>
 
 <template>
@@ -87,25 +92,31 @@ const closeModal = () => {
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
     <article class="update-order-modal">
+    <header>
         <a href="#close"
         aria-label="Close"
         class="close"
-        data-target="order-detail"
+        data-target="#order-detail"
         @click="closeModal">
         </a>
+        <h5>Update Order</h5>
         <h6>#SLN: {{ currentOrder?.sln }}</h6>
-        <div>
-            <ol>
-                <li v-for="(item, i) in currentOrder?.items" :key="i">
-                    {{ item?.name }}  <code>{{ item?.qty }}</code>
-                </li>
-            </ol>
-            
+    </header>
+    <div class="update-order-form">
+        <form @submit.prevent="updateStatus">
+            <label for="customer_name">
+                Customer Name
+                <input type="text" v-model="currentOrder.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
+            </label>
+
+            <label for="date">Date</label>
+            <input type="date" v-model="currentOrder.orderDate" id="date" name="date" defaultItemNames placeholder="Date" required>
+
+            <label for="salesman">Salesman</label>
+            <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+
             <label for="status">
-                <select 
-                    id="status"
-                    v-model="currentOrder.status"   
-                >
+                <select id="status" v-model="currentOrder.status">
                     <option value="placed">Placed</option>
                     <option value="processed">Processed</option>
                     <option value="completed">Completed</option>
@@ -113,37 +124,49 @@ const closeModal = () => {
                 </select>
             </label>
 
-            <label for="notes">
-                <textarea
-                id="notes"
-                v-model="currentOrder.notes"
-                ></textarea>
-            </label>
-            
+            <label for="notes">Notes</label>
+            <textarea v-model="currentOrder.notes" id="notes" name="notes" placeholder="notes"></textarea>
+
+            <!-- current orders -->
+            <fieldset class="order-item-container">
+                <legend><label>Item List</label></legend>
+
+                <div v-for="(item, i) in currentOrder?.items" :key="i">
+                    <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" />
+                </div>
+
+                <!-- Add item -->
+                <button type="button" @click="addOrderItem" class="secondary">Add item</button>
+            </fieldset>
+
+            <hr />
+
+            <footer>
+            <div class="grid">
+                <button
+                    role="button"
+                    class="primary"
+                    data-target="#order-detail"
+                    :aria-busy="isLoading"
+                    @click="updateStatus">
+                    Save
+                </button>
+                <button
+                    role="button"
+                    class="secondary"
+                    data-target="#order-detail"
+                    @click="closeModal">
+                    Close
+                </button>
+            </div>
+            </footer>
+
             <!-- NOTIFICATION -->
             <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
-                    <small>{{ notification?.msg }}</small>
+                <small>{{ notification?.msg }}</small>
             </p>
-        </div>
-        <footer>
-        <div class="grid">
-            <button
-                role="button"
-                class="prinary"
-                data-target="order-detail"
-                :aria-busy="isLoading"
-                @click="updateStatus">
-                Save
-            </button>
-            <button
-                role="button"
-                class="secondary"
-                data-target="order-detail"
-                @click="closeModal">
-                Close
-            </button>
-        </div>
-        </footer>
+        </form>
+    </div>
     </article>
     </dialog>
 
@@ -155,6 +178,15 @@ const closeModal = () => {
     /* max-width: 900px; */
     /* margin: auto; */
 }
+
+.update-order-form {
+    margin: auto;
+    /* min-width: 480px; */
+}
+.submit {
+    margin-top: 20px;
+}
+
 .order-item-row {
     cursor: pointer;
 }
@@ -165,5 +197,16 @@ const closeModal = () => {
     /* Mozilla */
     opacity: 0.6;
     font-weight: bolder;
+}
+
+.order-item-container {
+    border: solid 1px gray;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
 }
 </style>
