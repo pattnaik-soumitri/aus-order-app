@@ -1,177 +1,270 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { db } from '../fb.js';
-import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
+import { ref, onMounted, computed } from "vue";
+import OrderItemRow from "../components/OrderItemRow.vue";
+import { db } from "../fb.js";
+import {
+	collection,
+	query,
+	getDocs,
+	orderBy,
+	updateDoc,
+	doc,
+} from "firebase/firestore";
 
 const notification = ref({
-    success: true,
-    msg: ''
+	success: true,
+	msg: "",
 });
 
 const orders = ref([]);
 
 const currentOrder = ref(null);
+
+const defaultItemNames = ref([]);
+
 const modalIsOpen = ref(false);
 const isLoading = ref(false);
 
 onMounted(async () => {
-    const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
+	const q = query(collection(db, "orders"), orderBy("sln", "desc"));
+	console.log(q);
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        orders.value.push({...doc.data(), id: doc.id});
-    });
-    
+	const querySnapshot = await getDocs(q);
+	querySnapshot.forEach((doc) => {
+		orders.value.push({ ...doc.data(), id: doc.id });
+	});
 });
 
 const updateStatus = async () => {
-    isLoading.value = true;
-    const docRef = doc(db, "orders", currentOrder.value.id);
-    try {
-        await updateDoc(docRef, {status: currentOrder.value.status});
-        notification.value.msg = 'Saved successfully.';
-        notification.value.success = true;
-    } catch(e) {
-        notification.value.success = false;
-        notification.value.msg = 'Failed.';
-    }
-    isLoading.value = false;
-}
+	isLoading.value = true;
+	const docRef = doc(db, "orders", currentOrder.value.id);
+	try {
+		await updateDoc(docRef, { status: currentOrder.value.status });
+		notification.value.msg = "Saved successfully.";
+		notification.value.success = true;
+	} catch (e) {
+		notification.value.success = false;
+		notification.value.msg = "Failed.";
+	}
+	isLoading.value = false;
+};
 
 const closeModal = () => {
-    currentOrder.value = null; 
-    modalIsOpen.value = false;
-    notification.value = {
-        success: true,
-        msg: ''
-    }
-}
+	currentOrder.value = null;
+	modalIsOpen.value = false;
+	notification.value = {
+		success: true,
+		msg: "",
+	};
+};
 
+const addOrderItem = () => {
+	currentOrder.value.items.push({ name: "", qty: 0 });
+};
 </script>
 
 <template>
-    <section>
-        <div class="grid">
-            <div class="order-list-container">
-                <h5>Order List</h5>
-                <figure>
-                    <table role="grid">
-                        <thead>
-                            <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Customer</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Salesman</th>
-                            <th scope="col">Notes</th>
-                            <th scope="col">Created By</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="order in orders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; modalIsOpen = true;">
-                                <td>{{ order?.sln }}</td>
-                                <td>{{ order?.customerName }}</td>
-                                <td>{{ order?.orderDate }}</td>
-                                <td><code v-if="order?.status">{{ order?.status }}</code></td>
-                                <td>{{ order?.salesman }}</td>
-                                <td>{{ order?.notes }}</td>
-                                <td>{{ order?.createdBy }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </figure>
-            </div>
-        </div>
-    </section>
+	<section>
+		<div class="grid">
+			<div class="order-list-container">
+				<h5>Order List</h5>
+				<figure>
+					<table role="grid">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">Customer</th>
+								<th scope="col">Date</th>
+								<th scope="col">Status</th>
+								<th scope="col">Salesman</th>
+								<th scope="col">Notes</th>
+								<th scope="col">Created By</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr
+								v-for="order in orders"
+								:key="order?.sln"
+								class="order-item-row"
+								@click="
+									currentOrder = order;
+									modalIsOpen = true;
+								"
+							>
+								<td>{{ order?.sln }}</td>
+								<td>{{ order?.customerName }}</td>
+								<td>{{ order?.orderDate }}</td>
+								<td>
+									<code v-if="order?.status">{{
+										order?.status
+									}}</code>
+								</td>
+								<td>{{ order?.salesman }}</td>
+								<td>{{ order?.notes }}</td>
+								<td>{{ order?.createdBy }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</figure>
+			</div>
+		</div>
+	</section>
 
-    <!-- Modal -->
-    <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
-    <article class="update-order-modal">
-        <a href="#close"
-        aria-label="Close"
-        class="close"
-        data-target="order-detail"
-        @click="closeModal">
-        </a>
-        <h6>#SLN: {{ currentOrder?.sln }} <span><button class="btn-edit">Edit</button></span></h6>
-        <div>
-            <ol>
-                <li v-for="(item, i) in currentOrder?.items" :key="i">
-                    {{ item?.name }}  <code>{{ item?.qty }}</code>
-                </li>
-            </ol>
-            
-            <label for="status">
-                <select 
-                    id="status"
-                    v-model="currentOrder.status"   
-                >
-                    <option value="placed">Placed</option>
-                    <option value="processed">Processed</option>
-                    <option value="completed">Completed</option>
-                    <option value="recieved">Payment Recieved</option>
-                </select>
-            </label>
+	<!-- Modal -->
+	<dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
+		<article class="update-order-modal">
+			<header>
+				<a
+					href="#close"
+					aria-label="Close"
+					class="close"
+					data-target="#order-detail"
+					@click="closeModal"
+				></a>
+				<h5>Update Order</h5>
+				<h6>#SLN: {{ currentOrder.sln }}</h6>
+			</header>
+			<div class="update-order-form">
+				<form @submit.prevent="updateStatus">
+					<label for="customer_name">
+						Customer Name
+						<input
+							type="text"
+							v-model="currentOrder.customerName"
+							id="customer_name"
+							name="customer_name"
+							placeholder="Customer name"
+							required
+						/>
+					</label>
 
-            <label for="notes">
-                <textarea
-                id="notes"
-                v-model="currentOrder.notes"
-                ></textarea>
-            </label>
-            
-            <!-- NOTIFICATION -->
-            <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
-                    <small>{{ notification?.msg }}</small>
-            </p>
-        </div>
-        <footer>
-        <div class="grid">
-            <button
-                role="button"
-                class="prinary"
-                data-target="order-detail"
-                :aria-busy="isLoading"
-                @click="updateStatus">
-                Save
-            </button>
-            <button
-                role="button"
-                class="secondary"
-                data-target="order-detail"
-                @click="closeModal">
-                Close
-            </button>
-        </div>
-        </footer>
-    </article>
-    </dialog>
+					<label for="date">Date</label>
+					<input
+						type="date"
+						v-model="currentOrder.orderDate"
+						id="date"
+						name="date"
+						defaultItemNames
+						placeholder="Date"
+						required
+					/>
 
+					<label for="salesman">Salesman</label>
+					<input
+						type="text"
+						v-model="currentOrder.salesman"
+						id="salesman"
+						name="salesman"
+						placeholder="Salesman"
+						required
+					/>
+
+					<label for="status">
+						<select id="status" v-model="currentOrder.status">
+							<option value="placed">Placed</option>
+							<option value="processed">Processed</option>
+							<option value="completed">Completed</option>
+							<option value="recieved">Payment Recieved</option>
+						</select>
+					</label>
+
+					<label for="notes">Notes</label>
+					<textarea
+						v-model="currentOrder.notes"
+						id="notes"
+						name="notes"
+						placeholder="notes"
+					></textarea>
+
+					<!-- current orders -->
+					<fieldset class="order-item-container">
+						<legend><label>Item List</label></legend>
+
+						<div v-for="(item, i) in currentOrder?.items" :key="i">
+							<OrderItemRow
+								v-model:name="item.name"
+								v-model:qty="item.qty"
+								:index="i"
+								@delete-item="
+									(idx) => currentOrder.items.splice(idx, 1)
+								"
+							/>
+						</div>
+						<button
+							type="button"
+							@click="addOrderItem"
+							class="secondary"
+						>
+							Add item
+						</button>
+					</fieldset>
+					<hr />
+					<footer>
+						<div class="grid">
+							<button
+								role="button"
+								class="primary"
+								data-target="order-detail"
+								:aria-busy="isLoading"
+								@click="updateStatus"
+							>
+								Save
+							</button>
+							<button
+								role="button"
+								class="secondary"
+								data-target="order-detail"
+								@click="closeModal"
+							>
+								Close
+							</button>
+						</div>
+					</footer>
+
+					<!-- NOTIFICATION -->
+					<div v-if="notification" class="notification">
+						<small>{{ notification }}</small>
+					</div>
+				</form>
+			</div>
+		</article>
+	</dialog>
 </template>
-
 
 <style scoped>
 .order-list-container {
-    /* max-width: 900px; */
-    /* margin: auto; */
-}
-.order-item-row {
-    cursor: pointer;
-}
-.order-item-row:hover {
-    filter: alpha(opacity=60);
-    /* IE */
-    -moz-opacity: 0.6;
-    /* Mozilla */
-    opacity: 0.6;
-    font-weight: bolder;
+	/* max-width: 900px; */
+	/* margin: auto; */
 }
 
-.btn-edit {
-    width: 150px;
-    height: auto;
-    text-align: center;
-    display: inline;
-    margin-left: 15%;
+.update-order-form {
+	margin: auto;
+	/* min-width: 480px; */
+}
+.submit {
+	margin-top: 20px;
+}
+
+.order-item-row {
+	cursor: pointer;
+}
+.order-item-row:hover {
+	filter: alpha(opacity=60);
+	/* IE */
+	-moz-opacity: 0.6;
+	/* Mozilla */
+	opacity: 0.6;
+	font-weight: bolder;
+}
+
+.order-item-container {
+	border: solid 1px gray;
+	border-radius: 5px;
+	padding: 20px;
+	margin-bottom: 10px;
+
+	filter: alpha(opacity=80);
+	-moz-opacity: 0.8;
+	opacity: 0.8;
 }
 </style>
