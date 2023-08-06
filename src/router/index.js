@@ -19,7 +19,8 @@ const router = createRouter({
       name: 'home',
       component: OrderEntry,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Aus Order App'
       }
     },
     {
@@ -27,18 +28,25 @@ const router = createRouter({
       name: 'orders',
       component: OrderList,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Orders'
       }
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/Login.vue')
+      component: () => import('../views/Login.vue'),
+      meta: {
+        title: 'Login'
+      }
     }
   ]
 })
 
 // Global auth guard
 router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
+router.afterEach((toRoute, fromRoute) => {
+  window.document.title = toRoute?.meta && toRoute?.meta?.title ? toRoute?.meta?.title : 'Aus Order App';
+})
 
 export default router
