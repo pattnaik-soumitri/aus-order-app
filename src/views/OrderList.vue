@@ -29,7 +29,15 @@ const updateStatus = async () => {
     isLoading.value = true;
     const docRef = doc(db, "orders", currentOrder.value.id);
     try {
-        await updateDoc(docRef, {status: currentOrder.value.status});
+        await updateDoc(docRef, {
+            customerName: currentOrder.value.customerName,
+            orderDate: currentOrder.value.orderDate,
+            salesman: currentOrder.value.salesman,
+            items: currentOrder.value.items,
+            status: currentOrder.value.status,
+            notes: currentOrder.value.notes,
+            createdBy: currentOrder.value.createdBy
+        });
         notification.value.msg = 'Saved successfully.';
         notification.value.success = true;
     } catch(e) {
