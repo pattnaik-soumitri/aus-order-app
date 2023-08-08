@@ -187,6 +187,11 @@ const addOrderItem = () => {
     /* margin: auto; */
 }
 
+.update-order-modal {
+    margin: auto;
+    width: 800px;
+}
+
 .update-order-form {
     margin: auto;
     /* min-width: 480px; */
