@@ -17,7 +17,7 @@ import { products } from '../util/constants';
             <a href="#" @click.prevent="$emit('delete-item', index)" class="danger"><i class="fa fa-trash" aria-hidden="true"></i></a>
             <label>Item #{{ index + 1 }}</label>
             </span>
-            <input list="items" :modelValue="name" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
+            <input list="items" :modelValue="name" :value="name" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
             <datalist 
                 id="items" 
                 :value="name" 
