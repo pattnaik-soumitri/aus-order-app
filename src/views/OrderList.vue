@@ -15,6 +15,7 @@ const orders = ref([]);
 const currentOrder = ref(null);
 const modalIsOpen = ref(false);
 const isLoading = ref(false);
+const editBtnEnabled = ref(false);
 
 onMounted(async () => {
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
@@ -51,6 +52,20 @@ const updateStatus = async () => {
     }
     isLoading.value = false;
  
+}
+
+const orderDetails = async () => {
+    isLoading.value = true;
+    const docRef = doc(db, "orders", currentOrder.value.id);
+    try {
+        await updateDoc(docRef, {status: currentOrder.value.status, notes: currentOrder.value.notes});
+        notification.value.msg = 'Saved successfully.';
+        notification.value.success = true;
+    } catch(e) {
+        notification.value.success = false;
+        notification.value.msg = 'Failed.';
+    }
+    isLoading.value = false;
 }
 
 const closeModal = () => {
@@ -114,7 +129,7 @@ const isSaveButtonDisabled = computed(() => {
 
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
-    <article class="update-order-modal">
+    <article class="update-order-modal" v-if="editBtnEnabled">
     <header>
         <a href="#close"
         aria-label="Close"
@@ -122,8 +137,8 @@ const isSaveButtonDisabled = computed(() => {
         data-target="#order-detail"
         @click="closeModal">
         </a>
-        <h5>Update Order</h5>
-        <h6>#SLN: {{ currentOrder?.sln }}</h6>
+        <h5 class="modal-title">Update Order</h5>
+        <h6>#SLN: {{ currentOrder?.sln }}<span class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl" style="color: #c0ca33;"  @click.prevent="editBtnEnabled = !editBtnEnabled" ></i></span></h6>
     </header>
     <div class="update-order-form">
         <form @submit.prevent="updateStatus">
@@ -185,13 +200,78 @@ const isSaveButtonDisabled = computed(() => {
                 </button>
             </div>
             </footer>
+            <div class="order-details-notification">
+                <!-- NOTIFICATION -->
+                <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
+                    <small>{{ notification?.msg }}</small>
+                </p>
+            </div>
+        </form>
+    </div>
+    </article>
+    <article class="update-order-modal" v-else>
+        <header>
+            <a href="#close"
+            aria-label="Close"
+            class="close"
+            data-target="order-detail"
+            @click="closeModal">
+            </a>
+            <h5 class="modal-title">Order Details</h5>
+            <h6>#SLN: {{ currentOrder?.sln }}<span class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl" style="color: #c0ca33;"  @click.prevent="editBtnEnabled = !editBtnEnabled" ></i></span></h6>
+            <h6>Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span><span id="modal-date">{{ currentOrder?.orderDate }}</span></h6>
+        </header>
+        <div>
+            <ol>
+                <li v-for="(item, i) in currentOrder?.items" :key="i">
+                    {{ item?.name }}  <code>{{ item?.qty }}</code>
+                </li>
+            </ol>
+            
+            <label for="status">
+                <select 
+                    id="status"
+                    v-model="currentOrder.status"   
+                >
+                    <option value="placed">Placed</option>
+                    <option value="processed">Processed</option>
+                    <option value="completed">Completed</option>
+                    <option value="recieved">Payment Recieved</option>
+                </select>
+            </label>
 
+            <label for="notes">
+                <textarea
+                id="notes"
+                v-model="currentOrder.notes"
+                ></textarea>
+            </label>
+        </div>
+        <footer>
+        <div class="grid">
+            <button
+                role="button"
+                class="prinary"
+                data-target="order-detail"
+                :aria-busy="isLoading"
+                @click="orderDetails">
+                Save
+            </button>
+            <button
+                role="button"
+                class="secondary"
+                data-target="order-detail"
+                @click="closeModal">
+                Close
+            </button>
+        </div>
+        </footer>
+        <div class="order-details-notification">
             <!-- NOTIFICATION -->
             <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
                 <small>{{ notification?.msg }}</small>
             </p>
-        </form>
-    </div>
+        </div>
     </article>
     </dialog>
 
@@ -252,8 +332,33 @@ button:not(.disabled) {
 .red {
     color: red;
 }
-/* 
-.item-row-notification {
-    display: flex;
-} */
+
+
+.edit-icon {
+    padding-bottom: 70px;
+    float: right;
+}
+
+.modal-title {
+    text-align: center;
+}
+
+#modal-date {
+    padding-top: 10px;
+    float: right;
+}
+
+@media (max-width: 1024px) {
+    .grid button {
+        margin-top: 30px;
+    }
+}
+
+.order-details-notification {
+    margin-top: 50px;
+}
+
+#update-order-customer-name {
+    font-weight: lighter;
+}
 </style>
