@@ -1,5 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import OrderItemRow from '../components/OrderItemRow.vue';
+import { products } from '../util/constants';
 import { db } from '../fb.js';
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
@@ -25,10 +27,22 @@ onMounted(async () => {
 });
 
 const updateStatus = async () => {
+    if (isSaveButtonDisabled.value) {
+         // Button is disabled, do not save data
+        return;
+    }
     isLoading.value = true;
     const docRef = doc(db, "orders", currentOrder.value.id);
     try {
-        await updateDoc(docRef, {status: currentOrder.value.status});
+        await updateDoc(docRef, {
+            customerName: currentOrder.value.customerName,
+            orderDate: currentOrder.value.orderDate,
+            salesman: currentOrder.value.salesman,
+            items: currentOrder.value.items,
+            status: currentOrder.value.status,
+            notes: currentOrder.value.notes,
+            createdBy: currentOrder.value.createdBy
+        });
         notification.value.msg = 'Saved successfully.';
         notification.value.success = true;
     } catch(e) {
@@ -36,6 +50,7 @@ const updateStatus = async () => {
         notification.value.msg = 'Failed.';
     }
     isLoading.value = false;
+ 
 }
 
 const closeModal = () => {
@@ -46,6 +61,19 @@ const closeModal = () => {
         msg: ''
     }
 }
+
+const addOrderItem = () => {
+	currentOrder.value.items.push({ name: '', qty: 0 });
+}
+
+const isSaveButtonDisabled = computed(() => {
+    const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
+    const hasInvalidName = currentOrder.value?.items.some(item => {
+        const productName = item.name.trim();
+        return productName === '' || !products.includes(productName);
+    });
+    return hasInvalidQuantity || hasInvalidName;
+    });
 
 </script>
 
@@ -87,25 +115,31 @@ const closeModal = () => {
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
     <article class="update-order-modal">
+    <header>
         <a href="#close"
         aria-label="Close"
         class="close"
-        data-target="order-detail"
+        data-target="#order-detail"
         @click="closeModal">
         </a>
+        <h5>Update Order</h5>
         <h6>#SLN: {{ currentOrder?.sln }}</h6>
-        <div>
-            <ol>
-                <li v-for="(item, i) in currentOrder?.items" :key="i">
-                    {{ item?.name }}  <code>{{ item?.qty }}</code>
-                </li>
-            </ol>
-            
+    </header>
+    <div class="update-order-form">
+        <form @submit.prevent="updateStatus">
+            <label for="customer_name">
+                Customer Name
+                <input type="text" v-model="currentOrder.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
+            </label>
+
+            <label for="date">Date</label>
+            <input type="date" v-model="currentOrder.orderDate" id="date" name="date" defaultItemNames placeholder="Date" required>
+
+            <label for="salesman">Salesman</label>
+            <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+
             <label for="status">
-                <select 
-                    id="status"
-                    v-model="currentOrder.status"   
-                >
+                <select id="status" v-model="currentOrder.status">
                     <option value="placed">Placed</option>
                     <option value="processed">Processed</option>
                     <option value="completed">Completed</option>
@@ -113,37 +147,51 @@ const closeModal = () => {
                 </select>
             </label>
 
-            <label for="notes">
-                <textarea
-                id="notes"
-                v-model="currentOrder.notes"
-                ></textarea>
-            </label>
-            
+            <label for="notes">Notes</label>
+            <textarea v-model="currentOrder.notes" id="notes" name="notes" placeholder="notes"></textarea>
+
+            <!-- current orders -->
+            <fieldset class="order-item-container">
+                <legend><label>Item List</label></legend>
+
+                <div v-for="(item, i) in currentOrder?.items" :key="i">
+                    <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" />
+                </div>
+
+                <!-- Add item -->
+                <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
+            </fieldset>
+
+            <hr />
+
+            <footer>
+            <div class="grid">
+                <button
+                    role="button"
+                    class="primary"
+                    data-target="#order-detail"
+                    :aria-busy="isLoading"
+                    @click="updateStatus"
+                    :disabled=isSaveButtonDisabled
+                    :aria-invalid="isSaveButtonDisabled ? 'true' : false">
+                    Save
+                </button>
+                <button
+                    role="button"
+                    class="secondary"
+                    data-target="#order-detail"
+                    @click="closeModal">
+                    Close
+                </button>
+            </div>
+            </footer>
+
             <!-- NOTIFICATION -->
             <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
-                    <small>{{ notification?.msg }}</small>
+                <small>{{ notification?.msg }}</small>
             </p>
-        </div>
-        <footer>
-        <div class="grid">
-            <button
-                role="button"
-                class="prinary"
-                data-target="order-detail"
-                :aria-busy="isLoading"
-                @click="updateStatus">
-                Save
-            </button>
-            <button
-                role="button"
-                class="secondary"
-                data-target="order-detail"
-                @click="closeModal">
-                Close
-            </button>
-        </div>
-        </footer>
+        </form>
+    </div>
     </article>
     </dialog>
 
@@ -155,6 +203,20 @@ const closeModal = () => {
     /* max-width: 900px; */
     /* margin: auto; */
 }
+
+.update-order-modal {
+    margin: auto;
+    width: 800px;
+}
+
+.update-order-form {
+    margin: auto;
+    /* min-width: 480px; */
+}
+.submit {
+    margin-top: 20px;
+}
+
 .order-item-row {
     cursor: pointer;
 }
@@ -166,4 +228,32 @@ const closeModal = () => {
     opacity: 0.6;
     font-weight: bolder;
 }
+
+.order-item-container {
+    border: solid 1px gray;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 10px;
+
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
+}
+
+.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+button:not(.disabled) {
+  cursor: pointer; /* Normal cursor for non-disabled buttons */
+}
+
+.red {
+    color: red;
+}
+/* 
+.item-row-notification {
+    display: flex;
+} */
 </style>
