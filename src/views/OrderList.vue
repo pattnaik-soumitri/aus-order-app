@@ -20,10 +20,10 @@ const editBtnEnabled = ref(false);
 const fetchOrders = async () => {
     orders.value = []; // Clear the orders array
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-    await onSnapshot(q, (snapshot) => {
-        snapshot.docs.forEach(doc => {
-            orders.value.push({ ...doc.data(), id: doc.id });
-        });
+    
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+        orders.value.push({...doc.data(), id: doc.id});
     });
 };
 
