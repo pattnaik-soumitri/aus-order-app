@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import { products } from '../util/constants';
 import { db } from '../fb.js';
-import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
+import { collection, query, getDocs, orderBy, updateDoc, doc, onSnapshot } from "firebase/firestore";
 
 const notification = ref({
     success: true,
@@ -17,14 +17,18 @@ const modalIsOpen = ref(false);
 const isLoading = ref(false);
 const editBtnEnabled = ref(false);
 
-onMounted(async () => {
+const fetchOrders = async () => {
+    orders.value = []; // Clear the orders array
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        orders.value.push({...doc.data(), id: doc.id});
+    await onSnapshot(q, (snapshot) => {
+        snapshot.docs.forEach(doc => {
+            orders.value.push({ ...doc.data(), id: doc.id });
+        });
     });
-    
+};
+
+onMounted(async () => {   
+    await fetchOrders();
 });
 
 const updateStatus = async () => {
@@ -74,7 +78,8 @@ const closeModal = () => {
     notification.value = {
         success: true,
         msg: ''
-    }
+    };
+    fetchOrders(); // Fetch fresh orders after closing the modal
 }
 
 const addOrderItem = () => {
