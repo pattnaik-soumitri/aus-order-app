@@ -113,8 +113,13 @@ const submit = async () => {
     margin: auto;
     /* min-width: 480px; */
 }
+
+hr {
+    margin: 1rem 0;
+}
+
 .submit {
-    margin-top: 20px;
+    margin-top: 1rem;
 }
 .order-item-container {
     border: solid 1px gray;

@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import { products } from '../util/constants';
 import { db } from '../fb.js';
-import { collection, query, getDocs, orderBy, updateDoc, doc, onSnapshot } from "firebase/firestore";
+import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
 const notification = ref({
     success: true,
@@ -135,16 +135,14 @@ const isSaveButtonDisabled = computed(() => {
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
     <article class="update-order-modal" v-if="editBtnEnabled">
-    <header>
-        <a href="#close"
-        aria-label="Close"
-        class="close"
-        data-target="#order-detail"
-        @click="closeModal">
-        </a>
-        <h5 class="modal-title">Update Order</h5>
-        <h6>#SLN: {{ currentOrder?.sln }}<span class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl" style="color: #c0ca33;"  @click.prevent="editBtnEnabled = !editBtnEnabled" ></i></span></h6>
-    </header>
+    <a href="#close"
+    aria-label="Close"
+    class="close"
+    data-target="#order-detail"
+    @click="closeModal">
+    </a>
+    <h5 class="modal-title">Update Order<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
+    <h6>#SLN: {{ currentOrder?.sln }}</h6>
     <div class="update-order-form">
         <form @submit.prevent="updateStatus">
             <label for="customer_name">
@@ -158,7 +156,7 @@ const isSaveButtonDisabled = computed(() => {
             <label for="salesman">Salesman</label>
             <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
 
-            <label for="status">
+            <label for="status">Status
                 <select id="status" v-model="currentOrder.status">
                     <option value="placed">Placed</option>
                     <option value="processed">Processed</option>
@@ -215,25 +213,25 @@ const isSaveButtonDisabled = computed(() => {
     </div>
     </article>
     <article class="update-order-modal" v-else>
-        <header>
-            <a href="#close"
-            aria-label="Close"
-            class="close"
-            data-target="order-detail"
-            @click="closeModal">
-            </a>
-            <h5 class="modal-title">Order Details</h5>
-            <h6>#SLN: {{ currentOrder?.sln }}<span class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl" style="color: #c0ca33;"  @click.prevent="editBtnEnabled = !editBtnEnabled" ></i></span></h6>
-            <h6>Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span><span id="modal-date">{{ currentOrder?.orderDate }}</span></h6>
-        </header>
-        <div>
+        <a href="#close"
+        aria-label="Close"
+        class="close"
+        data-target="order-detail"
+        @click="closeModal">
+        </a>
+        <h5 class="modal-title">Order Details<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
+        <div class="modal-info">
+            <h6 class="sl-no">#SLN: {{ currentOrder?.sln }}<span id="modal-date">Date: {{ currentOrder?.orderDate }}</span></h6>
+            <h6 class="cust-info">Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span></h6>
+        </div>
+        <div class="item-details">
             <ol>
                 <li v-for="(item, i) in currentOrder?.items" :key="i">
                     {{ item?.name }}  <code>{{ item?.qty }}</code>
                 </li>
             </ol>
             
-            <label for="status">
+            <label for="status">Status
                 <select 
                     id="status"
                     v-model="currentOrder.status"   
@@ -245,7 +243,7 @@ const isSaveButtonDisabled = computed(() => {
                 </select>
             </label>
 
-            <label for="notes">
+            <label for="notes">Notes
                 <textarea
                 id="notes"
                 v-model="currentOrder.notes"
@@ -256,7 +254,7 @@ const isSaveButtonDisabled = computed(() => {
         <div class="grid">
             <button
                 role="button"
-                class="prinary"
+                class="primary"
                 data-target="order-detail"
                 :aria-busy="isLoading"
                 @click="orderDetails">
@@ -284,10 +282,6 @@ const isSaveButtonDisabled = computed(() => {
 
 
 <style scoped>
-.order-list-container {
-    /* max-width: 900px; */
-    /* margin: auto; */
-}
 
 .update-order-modal {
     margin: auto;
@@ -296,10 +290,18 @@ const isSaveButtonDisabled = computed(() => {
 
 .update-order-form {
     margin: auto;
-    /* min-width: 480px; */
 }
-.submit {
-    margin-top: 20px;
+
+#modal-date::first-letter {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 150%;
+}
+
+#update-order-customer-name {
+    font-weight: bold;
+    font-size: 110%;
+    margin-left: 0;
 }
 
 .order-item-row {
@@ -317,8 +319,8 @@ const isSaveButtonDisabled = computed(() => {
 .order-item-container {
     border: solid 1px gray;
     border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
 
     filter: alpha(opacity=80);
     -moz-opacity: 0.8;
@@ -338,9 +340,12 @@ button:not(.disabled) {
     color: red;
 }
 
+.edit-icon i {
+    color: #c0ca33;
+}
+
 
 .edit-icon {
-    padding-bottom: 70px;
     float: right;
 }
 
@@ -348,22 +353,47 @@ button:not(.disabled) {
     text-align: center;
 }
 
+.modal-info .sl-no{
+    margin-bottom: 0;
+}
+
 #modal-date {
-    padding-top: 10px;
     float: right;
+}
+
+hr {
+    margin: 1rem 0;
+}
+
+@media (max-width: 350px) {
+    .modal-info {
+        display: block;
+        margin-left: auto;
+    }
+
+    #modal-date {
+        display: block;
+        margin-left: auto;
+        float: initial;
+    }
+
+    .cust-info {
+        display: block;
+        float: left;
+    }
+    .item-details {
+        margin-top: 6rem;
+        display: block;
+    }
 }
 
 @media (max-width: 1024px) {
     .grid button {
-        margin-top: 30px;
+        margin-top: 1.5rem;
     }
 }
 
 .order-details-notification {
-    margin-top: 50px;
-}
-
-#update-order-customer-name {
-    font-weight: lighter;
+    margin-top: 2rem;
 }
 </style>
