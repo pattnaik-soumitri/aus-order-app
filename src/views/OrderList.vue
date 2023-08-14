@@ -75,6 +75,7 @@ const orderDetails = async () => {
 const closeModal = () => {
     currentOrder.value = null; 
     modalIsOpen.value = false;
+    editBtnEnabled.value = false;
     notification.value = {
         success: true,
         msg: ''
@@ -135,13 +136,13 @@ const isSaveButtonDisabled = computed(() => {
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
     <article class="update-order-modal" v-if="editBtnEnabled">
+    <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
     <a href="#close"
     aria-label="Close"
     class="close"
     data-target="#order-detail"
     @click="closeModal">
     </a>
-    <h5 class="modal-title">Update Order<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
     <h6>#SLN: {{ currentOrder?.sln }}</h6>
     <div class="update-order-form">
         <form @submit.prevent="updateStatus">
@@ -213,13 +214,13 @@ const isSaveButtonDisabled = computed(() => {
     </div>
     </article>
     <article class="update-order-modal" v-else>
+        <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
         <a href="#close"
         aria-label="Close"
         class="close"
         data-target="order-detail"
         @click="closeModal">
         </a>
-        <h5 class="modal-title">Order Details<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
         <div class="modal-info">
             <h6 class="sl-no">#SLN: {{ currentOrder?.sln }}<span id="modal-date">Date: {{ currentOrder?.orderDate }}</span></h6>
             <h6 class="cust-info">Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span></h6>
@@ -284,7 +285,8 @@ const isSaveButtonDisabled = computed(() => {
 <style scoped>
 
 .update-order-modal {
-    margin: auto;
+    margin-top: auto;
+    padding-top: 1rem;
     width: 800px;
 }
 
@@ -346,12 +348,13 @@ button:not(.disabled) {
 
 
 .edit-icon {
-    float: right;
+    float: top-left;
+    position: relative;
 }
 
-.modal-title {
+/* .modal-title {
     text-align: center;
-}
+} */
 
 .modal-info .sl-no{
     margin-bottom: 0;
