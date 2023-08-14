@@ -15,15 +15,20 @@ const orders = ref([]);
 const currentOrder = ref(null);
 const modalIsOpen = ref(false);
 const isLoading = ref(false);
+const editBtnEnabled = ref(false);
 
-onMounted(async () => {
+const fetchOrders = async () => {
+    orders.value = []; // Clear the orders array
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-
+    
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
         orders.value.push({...doc.data(), id: doc.id});
     });
-    
+};
+
+onMounted(async () => {   
+    await fetchOrders();
 });
 
 const updateStatus = async () => {
@@ -53,13 +58,28 @@ const updateStatus = async () => {
  
 }
 
+const orderDetails = async () => {
+    isLoading.value = true;
+    const docRef = doc(db, "orders", currentOrder.value.id);
+    try {
+        await updateDoc(docRef, {status: currentOrder.value.status, notes: currentOrder.value.notes});
+        notification.value.msg = 'Saved successfully.';
+        notification.value.success = true;
+    } catch(e) {
+        notification.value.success = false;
+        notification.value.msg = 'Failed.';
+    }
+    isLoading.value = false;
+}
+
 const closeModal = () => {
     currentOrder.value = null; 
     modalIsOpen.value = false;
     notification.value = {
         success: true,
         msg: ''
-    }
+    };
+    fetchOrders(); // Fetch fresh orders after closing the modal
 }
 
 const addOrderItem = () => {
@@ -114,17 +134,15 @@ const isSaveButtonDisabled = computed(() => {
 
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
-    <article class="update-order-modal">
-    <header>
-        <a href="#close"
-        aria-label="Close"
-        class="close"
-        data-target="#order-detail"
-        @click="closeModal">
-        </a>
-        <h5>Update Order</h5>
-        <h6>#SLN: {{ currentOrder?.sln }}</h6>
-    </header>
+    <article class="update-order-modal" v-if="editBtnEnabled">
+    <a href="#close"
+    aria-label="Close"
+    class="close"
+    data-target="#order-detail"
+    @click="closeModal">
+    </a>
+    <h5 class="modal-title">Update Order<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
+    <h6>#SLN: {{ currentOrder?.sln }}</h6>
     <div class="update-order-form">
         <form @submit.prevent="updateStatus">
             <label for="customer_name">
@@ -138,7 +156,7 @@ const isSaveButtonDisabled = computed(() => {
             <label for="salesman">Salesman</label>
             <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
 
-            <label for="status">
+            <label for="status">Status
                 <select id="status" v-model="currentOrder.status">
                     <option value="placed">Placed</option>
                     <option value="processed">Processed</option>
@@ -185,13 +203,78 @@ const isSaveButtonDisabled = computed(() => {
                 </button>
             </div>
             </footer>
+            <div class="order-details-notification">
+                <!-- NOTIFICATION -->
+                <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
+                    <small>{{ notification?.msg }}</small>
+                </p>
+            </div>
+        </form>
+    </div>
+    </article>
+    <article class="update-order-modal" v-else>
+        <a href="#close"
+        aria-label="Close"
+        class="close"
+        data-target="order-detail"
+        @click="closeModal">
+        </a>
+        <h5 class="modal-title">Order Details<a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a></h5>
+        <div class="modal-info">
+            <h6 class="sl-no">#SLN: {{ currentOrder?.sln }}<span id="modal-date">Date: {{ currentOrder?.orderDate }}</span></h6>
+            <h6 class="cust-info">Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span></h6>
+        </div>
+        <div class="item-details">
+            <ol>
+                <li v-for="(item, i) in currentOrder?.items" :key="i">
+                    {{ item?.name }}  <code>{{ item?.qty }}</code>
+                </li>
+            </ol>
+            
+            <label for="status">Status
+                <select 
+                    id="status"
+                    v-model="currentOrder.status"   
+                >
+                    <option value="placed">Placed</option>
+                    <option value="processed">Processed</option>
+                    <option value="completed">Completed</option>
+                    <option value="recieved">Payment Recieved</option>
+                </select>
+            </label>
 
+            <label for="notes">Notes
+                <textarea
+                id="notes"
+                v-model="currentOrder.notes"
+                ></textarea>
+            </label>
+        </div>
+        <footer>
+        <div class="grid">
+            <button
+                role="button"
+                class="primary"
+                data-target="order-detail"
+                :aria-busy="isLoading"
+                @click="orderDetails">
+                Save
+            </button>
+            <button
+                role="button"
+                class="secondary"
+                data-target="order-detail"
+                @click="closeModal">
+                Close
+            </button>
+        </div>
+        </footer>
+        <div class="order-details-notification">
             <!-- NOTIFICATION -->
             <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
                 <small>{{ notification?.msg }}</small>
             </p>
-        </form>
-    </div>
+        </div>
     </article>
     </dialog>
 
@@ -199,10 +282,6 @@ const isSaveButtonDisabled = computed(() => {
 
 
 <style scoped>
-.order-list-container {
-    /* max-width: 900px; */
-    /* margin: auto; */
-}
 
 .update-order-modal {
     margin: auto;
@@ -211,10 +290,18 @@ const isSaveButtonDisabled = computed(() => {
 
 .update-order-form {
     margin: auto;
-    /* min-width: 480px; */
 }
-.submit {
-    margin-top: 20px;
+
+#modal-date::first-letter {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 150%;
+}
+
+#update-order-customer-name {
+    font-weight: bold;
+    font-size: 110%;
+    margin-left: 0;
 }
 
 .order-item-row {
@@ -232,8 +319,8 @@ const isSaveButtonDisabled = computed(() => {
 .order-item-container {
     border: solid 1px gray;
     border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
 
     filter: alpha(opacity=80);
     -moz-opacity: 0.8;
@@ -252,8 +339,61 @@ button:not(.disabled) {
 .red {
     color: red;
 }
-/* 
-.item-row-notification {
-    display: flex;
-} */
+
+.edit-icon i {
+    color: #c0ca33;
+}
+
+
+.edit-icon {
+    float: right;
+}
+
+.modal-title {
+    text-align: center;
+}
+
+.modal-info .sl-no{
+    margin-bottom: 0;
+}
+
+#modal-date {
+    float: right;
+}
+
+hr {
+    margin: 1rem 0;
+}
+
+@media (max-width: 350px) {
+    .modal-info {
+        display: block;
+        margin-left: auto;
+    }
+
+    #modal-date {
+        display: block;
+        margin-left: auto;
+        float: initial;
+    }
+
+    .cust-info {
+        display: block;
+        float: left;
+    }
+    .item-details {
+        margin-top: 6rem;
+        display: block;
+    }
+}
+
+@media (max-width: 1024px) {
+    .grid button {
+        margin-top: 1.5rem;
+    }
+}
+
+.order-details-notification {
+    margin-top: 2rem;
+}
 </style>
