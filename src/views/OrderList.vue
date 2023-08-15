@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { products } from '../util/constants';
 import { db } from '../fb.js';
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
@@ -32,10 +31,6 @@ onMounted(async () => {
 });
 
 const updateStatus = async () => {
-    if (isSaveButtonDisabled.value) {
-         // Button is disabled, do not save data
-        return;
-    }
     isLoading.value = true;
     const docRef = doc(db, "orders", currentOrder.value.id);
     try {
@@ -86,15 +81,6 @@ const closeModal = () => {
 const addOrderItem = () => {
 	currentOrder.value.items.push({ name: '', qty: 0 });
 }
-
-const isSaveButtonDisabled = computed(() => {
-    const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
-    const hasInvalidName = currentOrder.value?.items.some(item => {
-        const productName = item.name.trim();
-        return productName === '' || !products.includes(productName);
-    });
-    return hasInvalidQuantity || hasInvalidName;
-});
 
 </script>
 
@@ -178,7 +164,7 @@ const isSaveButtonDisabled = computed(() => {
                 </div>
 
                 <!-- Add item -->
-                <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
+                <button type="button" @click="addOrderItem" class="secondary">Add item</button>
             </fieldset>
 
             <hr />
@@ -190,9 +176,7 @@ const isSaveButtonDisabled = computed(() => {
                     class="primary"
                     data-target="#order-detail"
                     :aria-busy="isLoading"
-                    @click="updateStatus"
-                    :disabled=isSaveButtonDisabled
-                    :aria-invalid="isSaveButtonDisabled ? 'true' : false">
+                    @click="updateStatus">
                     Save
                 </button>
                 <button

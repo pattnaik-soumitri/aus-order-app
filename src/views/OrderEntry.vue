@@ -1,6 +1,5 @@
 <script setup>
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { products } from '../util/constants';
 import { ref, computed } from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
 import { db } from '../fb.js';
@@ -56,17 +55,6 @@ const submit = async () => {
     order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
     loading.value = false;
 }
-
-const isSaveButtonDisabled = computed(() => {
-    const noItem = order.value.items == null || order.value.items.length === 0;
-    const hasInvalidQuantity = order.value.items.some(item => item.qty < 1);
-    const hasInvalidName = order.value.items.some(item => {
-        const productName = item.name.trim();
-        return productName === '' || !products.includes(productName);
-    });
-    return hasInvalidQuantity || hasInvalidName || noItem;
-});
-
 </script>
 
 <template>
@@ -103,7 +91,7 @@ const isSaveButtonDisabled = computed(() => {
                     <hr/>
         
                     <!-- Button -->
-                    <button type="submit" class="submit" :aria-busy="loading" :disabled=isSaveButtonDisabled>Submit</button>
+                    <button type="submit" class="submit" :aria-busy="loading">Submit</button>
         
                     <!-- {{ order }} -->
         
