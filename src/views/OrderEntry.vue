@@ -1,6 +1,7 @@
 <script setup>
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { ref } from 'vue';
+import { products } from '../util/constants';
+import { ref, computed } from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
 import { db } from '../fb.js';
 import { useSessionStore } from '../stores/userSessionStore';
@@ -56,6 +57,16 @@ const submit = async () => {
     loading.value = false;
 }
 
+const isSaveButtonDisabled = computed(() => {
+    const noItem = order.value.items == null || order.value.items.length === 0;
+    const hasInvalidQuantity = order.value.items.some(item => item.qty < 1);
+    const hasInvalidName = order.value.items.some(item => {
+        const productName = item.name.trim();
+        return productName === '' || !products.includes(productName);
+    });
+    return hasInvalidQuantity || hasInvalidName || noItem;
+});
+
 </script>
 
 <template>
@@ -92,7 +103,7 @@ const submit = async () => {
                     <hr/>
         
                     <!-- Button -->
-                    <button type="submit" class="submit" :aria-busy="loading">Submit</button>
+                    <button type="submit" class="submit" :aria-busy="loading" :disabled=isSaveButtonDisabled>Submit</button>
         
                     <!-- {{ order }} -->
         

@@ -94,7 +94,7 @@ const isSaveButtonDisabled = computed(() => {
         return productName === '' || !products.includes(productName);
     });
     return hasInvalidQuantity || hasInvalidName;
-    });
+});
 
 </script>
 
