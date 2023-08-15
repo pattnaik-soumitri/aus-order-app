@@ -31,6 +31,10 @@ onMounted(async () => {
 });
 
 const updateStatus = async () => {
+    if (isSaveButtonDisabled.value) {
+         // Button is disabled, do not save data
+        return;
+    }
     isLoading.value = true;
     const docRef = doc(db, "orders", currentOrder.value.id);
     try {
@@ -81,6 +85,14 @@ const closeModal = () => {
 const addOrderItem = () => {
 	currentOrder.value.items.push({ name: '', qty: 0 });
 }
+
+const isSaveButtonDisabled = computed(() => {
+    const noItem = currentOrder.value?.items == null || currentOrder.value?.items.length === 0;
+    const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
+    
+    return hasInvalidQuantity || noItem;
+});
+
 
 </script>
 
@@ -164,7 +176,7 @@ const addOrderItem = () => {
                 </div>
 
                 <!-- Add item -->
-                <button type="button" @click="addOrderItem" class="secondary">Add item</button>
+                <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
             </fieldset>
 
             <hr />
@@ -176,7 +188,9 @@ const addOrderItem = () => {
                     class="primary"
                     data-target="#order-detail"
                     :aria-busy="isLoading"
-                    @click="updateStatus">
+                    @click="updateStatus"
+                    :disabled=isSaveButtonDisabled
+                    :aria-invalid="isSaveButtonDisabled ? 'true' : false">
                     Save
                 </button>
                 <button

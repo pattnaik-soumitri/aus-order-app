@@ -55,6 +55,16 @@ const submit = async () => {
     order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
     loading.value = false;
 }
+
+const isSaveButtonDisabled = computed(() => {
+    const noItem = order.value.items == null || order.value.items.length === 0;
+    const hasInvalidQuantity = order.value.items.some(item => item.qty < 1);
+    const hasInvalidName = order.value.items.some(item => {
+        const productName = item.name.trim();
+        return productName === '';
+    });
+    return hasInvalidQuantity || hasInvalidName || noItem;
+});
 </script>
 
 <template>
@@ -85,13 +95,13 @@ const submit = async () => {
                         </div>
 
                         <!-- Add item -->
-                        <button type="button" @click="addOrderItem" class="secondary">Add item</button>
+                        <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
                     </fieldset>
         
                     <hr/>
         
                     <!-- Button -->
-                    <button type="submit" class="submit" :aria-busy="loading">Submit</button>
+                    <button type="submit" class="submit" :aria-busy="loading" :disabled=isSaveButtonDisabled>Submit</button>
         
                     <!-- {{ order }} -->
         

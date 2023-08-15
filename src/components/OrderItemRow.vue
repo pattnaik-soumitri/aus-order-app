@@ -17,9 +17,8 @@ import { products } from '../util/constants';
             <a href="#" @click.prevent="$emit('delete-item', index)" class="danger"><i class="fa fa-trash" aria-hidden="true"></i></a>
             <label>Item #<span class="sln">{{ index + 1 }}</span></label>
             </span>
-            <input list="items" :modelValue="name" :value="name" :aria-invalid="!name || !products.includes(name)? true : ''" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
+            <input list="items" :modelValue="name" :value="name" :aria-invalid="name === '' ? true : ''" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
             <small class="notification red" v-if="name.trim() === ''">Select an item</small>
-            <small class="notification red" v-if=" name.trim() !== '' && !products.includes(name)">Type correct item</small>
             <datalist 
                 id="items" 
                 :value="name" 
