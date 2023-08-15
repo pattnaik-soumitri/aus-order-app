@@ -44,7 +44,7 @@ import { products } from '../util/constants';
             name="qty" 
             placeholder="Qty" 
             required
-            :aria-invalid="qty == 0 ? true : ''"
+            :aria-invalid="qty < 1"
             >
             <small class="notification red" v-if="qty < 1">Qty cannot be 0</small>
         </label>
