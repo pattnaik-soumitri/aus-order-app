@@ -1,6 +1,5 @@
 <script setup>
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { products } from '../util/constants';
 import { ref, computed } from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
 import { db } from '../fb.js';
@@ -62,11 +61,10 @@ const isSaveButtonDisabled = computed(() => {
     const hasInvalidQuantity = order.value.items.some(item => item.qty < 1);
     const hasInvalidName = order.value.items.some(item => {
         const productName = item.name.trim();
-        return productName === '' || !products.includes(productName);
+        return productName === '';
     });
     return hasInvalidQuantity || hasInvalidName || noItem;
 });
-
 </script>
 
 <template>
@@ -97,7 +95,7 @@ const isSaveButtonDisabled = computed(() => {
                         </div>
 
                         <!-- Add item -->
-                        <button type="button" @click="addOrderItem" class="secondary">Add item</button>
+                        <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
                     </fieldset>
         
                     <hr/>
