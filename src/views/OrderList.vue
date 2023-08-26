@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import OrderItemRow from '../components/OrderItemRow.vue';
+import Pagination from "../components/Pagination.vue";
 import { db } from '../fb.js';
-import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
+import { collection, query, getDocs, getDoc, orderBy, updateDoc, doc, limit, startAfter } from "firebase/firestore";
 
 const notification = ref({
     success: true,
@@ -10,23 +11,63 @@ const notification = ref({
 });
 
 const orders = ref([]);
-
+const pageCount = ref(1);
+const maxPerPage = 10; // Number of orders per page
+const currentPage = ref(1);
 const currentOrder = ref(null);
 const modalIsOpen = ref(false);
 const isLoading = ref(false);
 const editBtnEnabled = ref(false);
+const initial = ref(true);
 
 const fetchOrders = async () => {
-    orders.value = []; // Clear the orders array
-    const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-    
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-        orders.value.push({...doc.data(), id: doc.id});
-    });
+    // if (initial) {
+    //     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
+    //     try {
+    //         const querySnapshot = await getDocs(q);
+    //         querySnapshot.forEach((doc) => {
+    //             orders.value.push({...doc.data(), id: doc.id});
+    //         });
+    //         pageCount.value = Math.ceil(querySnapshot.size / maxPerPage);
+    //         console.log(pageCount.value);
+    //         gotoPage(currentPage);
+    //     } catch (error) {
+    //         console.error('Error fetching orders:', error);
+    //     }
+    //     initial.value = false;
+    // } else {
+        gotoPage(currentPage);
+    // }
 };
 
-onMounted(async () => {   
+const gotoPage = (page) => {
+    console.log(`current page value is: ${page.value}`);
+    if (page >= 1 && page <= pageCount.value) {
+        currentPage.value = page;
+        fetchPaginatedOrders();
+    }
+};
+
+// const paginatedOrders = computed(() => {
+//     const startIndex = (currentPage.value - 1) * maxPerPage;
+//     const endIndex = startIndex + maxPerPage;
+//     return orders.value.slice(startIndex, endIndex);
+// });
+
+const fetchPaginatedOrders = async () => {
+    const q = query(collection(db, "orders"), orderBy('sln', 'desc'), startAfter(currentPage.value * maxPerPage - maxPerPage), limit(maxPerPage));
+    try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            orders.value.push({...doc.data(), id: doc.id});
+        });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+    }
+};
+
+onMounted(async () => {
+    // orders.value = [];
     await fetchOrders();
 });
 
@@ -79,7 +120,8 @@ const closeModal = () => {
         success: true,
         msg: ''
     };
-    fetchOrders(); // Fetch fresh orders after closing the modal
+
+    fetchOrders(currentPage); // Fetch fresh orders after closing the modal
 }
 
 const addOrderItem = () => {
@@ -115,7 +157,7 @@ const isSaveButtonDisabled = computed(() => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; modalIsOpen = true;">
+                            <tr v-for="order in paginatedOrders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; modalIsOpen = true;">
                                 <td>{{ order?.sln }}</td>
                                 <td>{{ order?.customerName }}</td>
                                 <td>{{ order?.orderDate }}</td>
@@ -126,6 +168,21 @@ const isSaveButtonDisabled = computed(() => {
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <!-- <div class="pagination">
+                        <button :disabled="page === 1" @click="previousPage" class="btn">Previous</button>
+                        <span>{{ page }} / {{ pageCount }}</span>
+                        <button :disabled="page === pageCount" @click="nextPage" class="btn">Next</button>
+                    </div> -->
+                    
+                    <!-- alternative pagination -->
+                    <Pagination 
+                        :page="currentPage"
+                        :pageCount="pageCount" 
+                        @gotoPage="gotoPage"
+                    />
+
                 </figure>
             </div>
         </div>
@@ -281,6 +338,22 @@ const isSaveButtonDisabled = computed(() => {
 
 
 <style scoped>
+
+.btn {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    margin: 0 0.5rem;
+    cursor: pointer;
+}
+
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
 
 .update-order-modal {
     margin-top: auto;
