@@ -20,25 +20,24 @@ const isLoading = ref(false);
 const editBtnEnabled = ref(false);
 const initial = ref(true);
 
-const fetchOrders = async (initial) => {
-    if (initial) {
-        const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-        try {
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                orders.value.push({...doc.data(), id: doc.id});
-            });
-            pageCount.value = Math.ceil(querySnapshot.size / maxPerPage);
-            console.log(pageCount.value);
-            gotoPage(currentPage);
-        } catch (error) {
-            console.error('Error fetching orders:', error);
-        }
-        initial.value = false;
-    } else {
+const fetchOrders = async () => {
+    // if (initial) {
+    //     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
+    //     try {
+    //         const querySnapshot = await getDocs(q);
+    //         querySnapshot.forEach((doc) => {
+    //             orders.value.push({...doc.data(), id: doc.id});
+    //         });
+    //         pageCount.value = Math.ceil(querySnapshot.size / maxPerPage);
+    //         console.log(pageCount.value);
+    //         gotoPage(currentPage);
+    //     } catch (error) {
+    //         console.error('Error fetching orders:', error);
+    //     }
+    //     initial.value = false;
+    // } else {
         gotoPage(currentPage);
-    }
-    
+    // }
 };
 
 const gotoPage = (page) => {
@@ -49,11 +48,11 @@ const gotoPage = (page) => {
     }
 };
 
-const paginatedOrders = computed(() => {
-    const startIndex = (currentPage.value - 1) * maxPerPage;
-    const endIndex = startIndex + maxPerPage;
-    return orders.value.slice(startIndex, endIndex);
-});
+// const paginatedOrders = computed(() => {
+//     const startIndex = (currentPage.value - 1) * maxPerPage;
+//     const endIndex = startIndex + maxPerPage;
+//     return orders.value.slice(startIndex, endIndex);
+// });
 
 const fetchPaginatedOrders = async () => {
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'), startAfter(currentPage.value * maxPerPage - maxPerPage), limit(maxPerPage));
@@ -69,7 +68,7 @@ const fetchPaginatedOrders = async () => {
 
 onMounted(async () => {
     // orders.value = [];
-    await fetchOrders(initial);
+    await fetchOrders();
 });
 
 const updateStatus = async () => {
@@ -470,30 +469,5 @@ hr {
 
 .order-details-notification {
     margin-top: 2rem;
-}
-
-/* for pagination styling */
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.pagination a {
-  color: black;
-  float: left;
-  padding: 8px 16px;
-  text-decoration: none;
-}
-
-.pagination a.active {
-  background-color: var(--primary);
-  color: white;
-  border-radius: 5px;
-}
-
-.pagination a:hover:not(.active) {
-  background-color: #ddd;
-  border-radius: 5px;
 }
 </style>
