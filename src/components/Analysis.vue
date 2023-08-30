@@ -115,18 +115,25 @@ async function getTopOrderedProducts(numProducts) {
     <label for="top-sales-select">Top Selling Products</label>
 
     <select id="top-sales-select" v-model="selectedValue" @change="getTopOrderedProducts(selectedValue)">
-      <option value="5" selected>5</option>
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="30">30</option>
+      <option value="5" selected>5 Top Products</option>
+      <option value="10">10 Top Products</option>
+      <option value="20">20 Top Products</option>
+      <option value="30">30 Top Products</option>
     </select>
   </div>
-	<v-chart class="chart" :option="option" />
+	<v-chart class="chart" :option="option" autoresize/>
 </template>
 
 <style scoped>
 .chart {
-  height: 700px;
+  width: 100%; /* Full width */
+  height: 50vh; /* 50% of the viewport height */
   align-items: center;
+}
+
+label {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 </style>

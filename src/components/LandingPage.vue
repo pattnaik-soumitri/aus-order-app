@@ -23,14 +23,14 @@ proxyIsLoggedIn.value = isLoggedIn;
 .tabs {
   border-bottom: 1px solid var(--secondary);
   margin-bottom: 10px;
-/*  min-width: 120%;*/
   text-align: center;
 }
 
 .links {
   display: inline-flex;
   justify-content: space-evenly;
-  width: 50%;
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .tab-link {
@@ -59,12 +59,26 @@ proxyIsLoggedIn.value = isLoggedIn;
   color: var(--primary-inverse);
 }
 
-/*.router-view-container {
+/* .router-view-container {
   margin-top: 20px;
   padding: 20px;
   border: 1px solid var(--secondary);
   border-radius: 5px;
   width: 100%;
   text-align: -webkit-center;
-}*/
+} */
+
+/* Responsive styles */
+@media (min-width: 600px) {
+  .links {
+    width: 75%;
+  }
+}
+
+@media (min-width: 900px) {
+  .links {
+    width: 50%;
+  }
+}
+
 </style>

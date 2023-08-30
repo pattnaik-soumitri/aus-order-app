@@ -29,6 +29,7 @@ const router = createRouter({
       path: '/orders',
       name: 'orders',
       component: LandingPage,
+      redirect: '/orders/order-list',
       meta: {
         requiresAuth: true,
         title: 'Orders'

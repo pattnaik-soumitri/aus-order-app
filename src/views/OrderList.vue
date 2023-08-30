@@ -102,7 +102,7 @@ const isSaveButtonDisabled = computed(() => {
     <section>
         <div class="grid">
             <div class="order-list-container">
-                <h5>Order List</h5>
+                <h5 class="order-list-heading">Order List</h5>
                 <figure>
                     <table role="grid">
                         <thead>
@@ -288,6 +288,11 @@ const isSaveButtonDisabled = computed(() => {
 
 
 <style scoped>
+
+.order-list-heading{
+    font-size: 1.4rem;
+    font-weight: bold;
+}
 
 .update-order-modal {
     margin-top: auto;
