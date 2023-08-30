@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import { useSessionStore } from './stores/userSessionStore';
+
 const { isLoggedIn, logout } = useSessionStore();
 const router = useRouter();
 const route = useRoute();
@@ -33,7 +34,7 @@ watch(isLoggedIn, (newVal, oldVal) => {
   </header>
 
   <main class="container">
-    <RouterView />
+    <router-view class="router-view"/>
   </main>
 
   <footer>
@@ -68,5 +69,15 @@ nav ul {
 }
 .footer small {
   font-size: small;
+}
+
+.container {
+  display: contents;
+  width: 100%;
+}
+
+.router-view {
+  width: 80%;
+  margin: auto;
 }
 </style>

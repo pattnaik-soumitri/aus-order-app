@@ -9,9 +9,11 @@
     "build-deploy": "vite build && firebase deploy --only hosting"
   },
   "dependencies": {
+    "echarts": "^5.4.3",
     "firebase": "^9.22.2",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
+    "vue-echarts": "^6.6.1",
     "vue-router": "^4.2.2"
   },
   "devDependencies": {
