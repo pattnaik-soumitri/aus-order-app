@@ -1,6 +1,6 @@
 <script setup>
 // import the necessary modules from v-chart
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import { use } from 'echarts/core';
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from 'echarts/charts';
@@ -53,9 +53,16 @@ const option = ref({
   ],
 });
 
-const selectedValue = ref(null);
+const selectedValue = ref(5);
 const ordersCalculate = ref([]);
 let topProducts = ref([]);
+
+// watchOnMounted(selectedValue, (newValue) => {
+//   getTopOrderedProducts(newValue);
+// });
+
+// // Call the function immediately to populate the chart on page load
+// getTopOrderedProducts(selectedValue);
 
 // for DB operation
 const q = query(collection(db, "orders"));
@@ -108,6 +115,10 @@ async function getTopOrderedProducts(numProducts) {
     console.error('Error fetching data:', error);
   }
 }
+
+onMounted(() => {
+  getTopOrderedProducts(selectedValue.value);
+});
 </script>
 
 <template>
@@ -115,7 +126,7 @@ async function getTopOrderedProducts(numProducts) {
     <label for="top-sales-select">Top Selling Products</label>
 
     <select id="top-sales-select" v-model="selectedValue" @change="getTopOrderedProducts(selectedValue)">
-      <option value="5" selected>5 Top Products</option>
+      <option value="5">5 Top Products</option>
       <option value="10">10 Top Products</option>
       <option value="20">20 Top Products</option>
       <option value="30">30 Top Products</option>
