@@ -2,6 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import { useSessionStore } from './stores/userSessionStore';
+
 const { isLoggedIn, logout } = useSessionStore();
 const router = useRouter();
 const route = useRoute();
@@ -13,7 +14,7 @@ const proxyIsLoggedIn = ref(false);
 watch(isLoggedIn, (newVal, oldVal) => {
   proxyIsLoggedIn.value = newVal;
   if(!newVal) {
-    router.push('login');
+    router.push('/login');
   }
 });
 </script>
@@ -25,15 +26,15 @@ watch(isLoggedIn, (newVal, oldVal) => {
         <li><RouterLink class="logo-link contrast" to="/"><strong>ORDERS</strong></RouterLink></li>
       </ul>
       <ul>
-        <li><RouterLink to="orders" v-if="proxyIsLoggedIn" class="contrast">Order List</RouterLink></li>
-        <li><RouterLink to="login" v-if="!proxyIsLoggedIn && path != '/login'" class="contrast">Login</RouterLink></li>
+        <li><RouterLink to="/orders" v-if="proxyIsLoggedIn" class="contrast">Order List</RouterLink></li>
+        <li><RouterLink to="/login" v-if="!proxyIsLoggedIn && path != '/login'" class="contrast">Login</RouterLink></li>
         <li v-if="proxyIsLoggedIn"><a href="#" @click.prevent="logout" class="contrast">Logout</a></li>
       </ul>
     </nav>
   </header>
 
   <main class="container">
-    <RouterView />
+    <router-view class="router-view"/>
   </main>
 
   <footer>
@@ -54,6 +55,8 @@ watch(isLoggedIn, (newVal, oldVal) => {
 }
 nav {
   border-bottom: solid 1px var(--secondary);
+  display: flex;
+  flex-direction: column;
 }
 
 nav ul {
@@ -68,5 +71,33 @@ nav ul {
 }
 .footer small {
   font-size: small;
+}
+
+.container {
+  display: contents;
+  width: 100%;
+}
+
+.router-view {
+  width: 100%;
+  margin: auto;
+}
+
+/* Responsive styles */
+@media (min-width: 600px) {
+  nav {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .router-view {
+    width: 80%;
+  }
+
+  /* .container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  } */
 }
 </style>

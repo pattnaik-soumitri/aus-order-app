@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import OrderEntry from '../views/OrderEntry.vue';
-import OrderList from '../views/OrderList.vue';
+import OrderEntry from '@/views/OrderEntry.vue';
+import OrderList from '@/views/OrderList.vue';
+import LandingPage from '@/components/LandingPage.vue';
+import Analysis from '@/components/Analysis.vue';
 import { useSessionStore } from '../stores/userSessionStore';
 
 const authCheck = () => {
@@ -26,11 +28,36 @@ const router = createRouter({
     {
       path: '/orders',
       name: 'orders',
-      component: OrderList,
+      component: LandingPage,
+      redirect: '/orders/order-list',
       meta: {
         requiresAuth: true,
         title: 'Orders'
-      }
+      },
+      children: [
+      {
+        // OrderList will be rendered inside Order's <router-view>
+        // when /orders/order-list is matched
+        path: 'order-list',
+        name: 'orderList',
+        component: OrderList,
+        meta: {
+          requiresAuth: true,
+          title: 'Order List'
+        }
+      },
+      {
+        // Analysis will be rendered inside Order's <router-view>
+        // when /orders/analysis is matched
+        path: 'analysis',
+        name: 'analysis',
+        component: Analysis,
+        meta: {
+          requiresAuth: true,
+          title: 'Orders Analysis'
+        }
+      },
+    ]
     },
     {
       path: '/login',

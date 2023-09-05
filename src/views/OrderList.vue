@@ -100,7 +100,7 @@ const isSaveButtonDisabled = computed(() => {
     <section>
         <div class="grid">
             <div class="order-list-container">
-                <h5>Order List</h5>
+                <h5 class="order-list-heading">Order List</h5>
                 <figure>
                     <table role="grid">
                         <thead>
@@ -134,97 +134,102 @@ const isSaveButtonDisabled = computed(() => {
     <!-- Modal -->
     <dialog id="order-detail" :open="modalIsOpen" v-if="modalIsOpen">
     <article class="update-order-modal" v-if="editBtnEnabled">
-    <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
-    <a href="#close"
-    aria-label="Close"
-    class="close"
-    data-target="#order-detail"
-    @click="closeModal">
-    </a>
-    <h6>#SLN: {{ currentOrder?.sln }}</h6>
-    <div class="update-order-form">
-        <form @submit.prevent="updateStatus">
-            <label for="customer_name">
-                Customer Name
-                <input type="text" v-model="currentOrder.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
-            </label>
+        <div class="symbols">
+            <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+            <a href="#close"
+            aria-label="Close"
+            class="close"
+            data-target="#order-detail"
+            @click="closeModal">
+            </a>
+        </div>
+        <h6>#SLN: {{ currentOrder?.sln }}</h6>
+        <div class="update-order-form">
+            <form @submit.prevent="updateStatus">
+                <label for="customer_name">
+                    Customer Name
+                    <input type="text" v-model="currentOrder.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
+                </label>
 
-            <label for="date">Date</label>
-            <input type="date" v-model="currentOrder.orderDate" id="date" name="date" defaultItemNames placeholder="Date" required>
+                <label for="date">Date</label>
+                <input type="date" v-model="currentOrder.orderDate" id="date" name="date" defaultItemNames placeholder="Date" required>
 
-            <label for="salesman">Salesman</label>
-            <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
+                <label for="salesman">Salesman</label>
+                <input type="text" v-model="currentOrder.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
 
-            <label for="status">Status
-                <select id="status" v-model="currentOrder.status">
-                    <option value="placed">Placed</option>
-                    <option value="processed">Processed</option>
-                    <option value="completed">Completed</option>
-                    <option value="recieved">Payment Recieved</option>
-                </select>
-            </label>
+                <label for="status">Status
+                    <select id="status" v-model="currentOrder.status">
+                        <option value="placed">Placed</option>
+                        <option value="processed">Processed</option>
+                        <option value="completed">Completed</option>
+                        <option value="recieved">Payment Recieved</option>
+                    </select>
+                </label>
 
-            <label for="notes">Notes</label>
-            <textarea v-model="currentOrder.notes" id="notes" name="notes" placeholder="notes"></textarea>
+                <label for="notes">Notes</label>
+                <textarea v-model="currentOrder.notes" id="notes" name="notes" placeholder="notes"></textarea>
 
-            <!-- current orders -->
-            <fieldset class="order-item-container">
-                <legend><label>Item List</label></legend>
+                <!-- current orders -->
+                <fieldset class="order-item-container">
+                    <legend><label>Item List</label></legend>
 
-                <div v-for="(item, i) in currentOrder?.items" :key="i">
-                    <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" />
+                    <div v-for="(item, i) in currentOrder?.items" :key="i">
+                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" />
+                    </div>
+
+                    <!-- Add item -->
+                    <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
+                </fieldset>
+
+                <hr />
+
+                <footer>
+                <div class="grid">
+                    <button
+                        role="button"
+                        class="primary"
+                        data-target="#order-detail"
+                        :aria-busy="isLoading"
+                        @click="updateStatus"
+                        :disabled=isSaveButtonDisabled
+                        :aria-invalid="isSaveButtonDisabled ? 'true' : false">
+                        Save
+                    </button>
+                    <button
+                        role="button"
+                        class="secondary"
+                        data-target="#order-detail"
+                        @click="closeModal">
+                        Close
+                    </button>
                 </div>
-
-                <!-- Add item -->
-                <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
-            </fieldset>
-
-            <hr />
-
-            <footer>
-            <div class="grid">
-                <button
-                    role="button"
-                    class="primary"
-                    data-target="#order-detail"
-                    :aria-busy="isLoading"
-                    @click="updateStatus"
-                    :disabled=isSaveButtonDisabled
-                    :aria-invalid="isSaveButtonDisabled ? 'true' : false">
-                    Save
-                </button>
-                <button
-                    role="button"
-                    class="secondary"
-                    data-target="#order-detail"
-                    @click="closeModal">
-                    Close
-                </button>
-            </div>
-            </footer>
-            <div class="order-details-notification">
-                <!-- NOTIFICATION -->
-                <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
-                    <small>{{ notification?.msg }}</small>
-                </p>
-            </div>
-        </form>
-    </div>
+                </footer>
+                <div class="order-details-notification">
+                    <!-- NOTIFICATION -->
+                    <p v-if="notification?.msg" :class="{notification: true, success:notification.success, failed:!notification.success}">
+                        <small>{{ notification?.msg }}</small>
+                    </p>
+                </div>
+            </form>
+        </div>
     </article>
     <article class="update-order-modal" v-else>
-        <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
-        <a href="#close"
-        aria-label="Close"
-        class="close"
-        data-target="order-detail"
-        @click="closeModal">
-        </a>
+        <div class="symbols">
+            <a href="#" @click.prevent="editBtnEnabled = !editBtnEnabled" class="edit-icon"><i class="fa-solid fa-pen-to-square fa-xl"></i></a>
+            <a href="#close"
+            aria-label="Close"
+            class="close"
+            data-target="order-detail"
+            @click="closeModal">
+            </a>
+        </div>
         <div class="modal-info">
-            <h6 class="sl-no">#SLN: {{ currentOrder?.sln }}<span id="modal-date">Date: {{ currentOrder?.orderDate }}</span></h6>
-            <h6 class="cust-info">Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span></h6>
+            <h6 class="sl-no">#SLN: {{ currentOrder?.sln }}</h6>
+            <h6 id="modal-date">Date: {{ currentOrder?.orderDate }}</h6>
         </div>
         <div class="item-details">
-            <ol>
+            <h6 class="cust-info">Customer Name: <span id="update-order-customer-name">{{ currentOrder?.customerName }}</span></h6>
+            <ol class="order-item-list">
                 <li v-for="(item, i) in currentOrder?.items" :key="i">
                     {{ item?.name }}  <code>{{ item?.qty }}</code>
                 </li>
@@ -282,6 +287,11 @@ const isSaveButtonDisabled = computed(() => {
 
 <style scoped>
 
+.order-list-heading{
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
 .update-order-modal {
     margin-top: auto;
     padding-top: 1rem;
@@ -290,12 +300,6 @@ const isSaveButtonDisabled = computed(() => {
 
 .update-order-form {
     margin: auto;
-}
-
-#modal-date::first-letter {
-    color: var(--primary);
-    font-weight: bold;
-    font-size: 150%;
 }
 
 #update-order-customer-name {
@@ -315,6 +319,11 @@ const isSaveButtonDisabled = computed(() => {
     opacity: 0.6;
     font-weight: bolder;
 }
+
+.order-item-list {
+    text-align: left;
+}
+
 
 .order-item-container {
     border: solid 1px gray;
@@ -340,26 +349,45 @@ button:not(.disabled) {
     color: red;
 }
 
+.symbols {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
 .edit-icon i {
     color: #c0ca33;
 }
 
 
 .edit-icon {
-    float: top-left;
+    float: left;
     position: relative;
 }
 
-/* .modal-title {
-    text-align: center;
-} */
+.close {
+    margin: 0;
+    padding: 3% 95%;
+}
 
-.modal-info .sl-no{
-    margin-bottom: 0;
+.modal-info{
+    margin: 1rem 0 0 0;
+    display: inline-block;
+    width: 100%;
+}
+
+.sl-no {
+    float: left;
 }
 
 #modal-date {
     float: right;
+}
+
+#modal-date::first-letter {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 150%;
 }
 
 hr {
@@ -368,22 +396,22 @@ hr {
 
 @media (max-width: 350px) {
     .modal-info {
-        display: block;
+        display: inline-block;
+        width: 100%;
         margin-left: auto;
     }
 
     #modal-date {
         display: block;
         margin-left: auto;
-        float: initial;
+        float: left;
     }
 
     .cust-info {
         display: block;
-        float: left;
+        text-align: left;
     }
     .item-details {
-        margin-top: 6rem;
         display: block;
     }
 }
