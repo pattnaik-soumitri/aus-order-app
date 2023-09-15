@@ -213,7 +213,7 @@ const products = [
     { slno: 212, name: 'Sudarsan Churna 100gm(Cont.)', mrp: 0.00},
     { slno: 213, name: 'Talisyadi Churna 50gm( pkt)', mrp: 65.00},
     { slno: 214, name: 'Talisyadi Churna 100gm', mrp: 120.00},
-    { slno: 215, name: 'Triphala Churna 50gm(pkt)', mrp: 40.00},3
+    { slno: 215, name: 'Triphala Churna 50gm(pkt)', mrp: 40.00},
     { slno: 216, name: 'Triphala Churna 100gm', mrp: 75.00 },
     { slno: 217, name: 'Brahmi Ghruta 100gm', mrp: 0.00},
     { slno: 218, name: 'Br.Chhagaladi Ghruta 100gm', mrp: 300.00},

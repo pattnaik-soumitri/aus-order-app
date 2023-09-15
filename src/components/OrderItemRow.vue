@@ -1,13 +1,29 @@
 <script setup>
-defineProps({
+import { products } from '../util/constants';
+import { defineProps, defineEmits, ref, watch, computed } from 'vue';
+
+const props = defineProps({
     index: Number,
     name: String,
     qty: Number
 })
 
-defineEmits(['update:name', 'update:qty'])
+defineEmits(['delete-item', 'update:total-price', 'update:name', 'update:qty'])
 
-import { products } from '../util/constants';
+let totalPrice = ref(0);
+
+const productName = computed(() => props.name);
+const productQty = computed(() => props.qty);
+
+watch([productName, productQty], () => {
+  const product = products.find((p) => p.name === productName.value);
+  totalPrice.value = product ? product.mrp * productQty.value : 0;
+});
+
+// Expose the totalPrice to the template
+defineExpose({
+  totalPrice
+});
 </script>
 
 <template>
@@ -27,7 +43,7 @@ import { products } from '../util/constants';
                 aria-invalid="true"
             >
             <option value="" selected>Select an item</option>
-            <option v-for="(product, i) in products" :key="i" :value="product">{{ product }}</option>
+            <option v-for="(product) in products" :key="product.slno" :value="product.name">{{ product.name }}</option>
             </datalist>
             <!-- Add the notification message -->
 
@@ -39,7 +55,7 @@ import { products } from '../util/constants';
         <input 
             type="number" 
             :value="qty"
-            @input="$emit('update:qty', $event.target.value)"
+            @input="$emit('update:qty', Number($event.target.value))"
             id="qty" 
             name="qty" 
             placeholder="Qty" 
@@ -49,6 +65,9 @@ import { products } from '../util/constants';
             <small class="notification red" v-if="qty < 1">Qty cannot be 0</small>
         </label>
     </div>
+    <label for="price">
+        Total Price: {{ totalPrice }}
+    </label>
 </template>
 
 <style scoped>

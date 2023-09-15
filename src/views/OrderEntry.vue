@@ -96,6 +96,11 @@ const isSaveButtonDisabled = computed(() => {
 
                         <!-- Add item -->
                         <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
+
+                        <!-- Total Bill Amount -->
+                        <label for="billAmt">
+                            Total Bill Amount: {{ }}
+                        </label>
                     </fieldset>
         
                     <hr/>
