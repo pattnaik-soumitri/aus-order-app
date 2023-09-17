@@ -2,8 +2,8 @@
 import OrderItemRow from '../components/OrderItemRow.vue';
 import { ref, computed } from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
-import { db } from '../fb.js';
-import { useSessionStore } from '../stores/userSessionStore';
+import { db } from '@/fb';
+import { useSessionStore } from '@/stores/userSessionStore';
 
 const loading = ref(false);
 const getFormattedDate = (date) => {
@@ -27,11 +27,23 @@ const blankOrder = {
 };
 const order = ref({...blankOrder});
 
+const totalOrderAmt = ref(0);
+
 const notificationMsg = ref('');
 
 const addOrderItem = () => {
     order.value.items.push({name: '', qty: 0});
 }
+
+const itemTotalPrices = new Map();
+const updateTotalOrderAmt = (productName, itemAmount) => {
+  itemTotalPrices.set(productName, itemAmount);
+  totalOrderAmt.value = 0;
+  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value} && itemTotalPrices is ${itemTotalPrices} and total bill amount is: ${totalOrderAmt}`);
+  // calculate the total order amount
+  itemTotalPrices.forEach((value, key) => totalOrderAmt.value += value);
+}
+// watch(order.value.items, updateTotalOrderAmt, { deep: true });
 
 const submit = async () => {
     loading.value = true;
@@ -91,7 +103,7 @@ const isSaveButtonDisabled = computed(() => {
                         <legend><label>Item List</label></legend>
                         
                         <div v-for="(item, i) in order.items" :key="i">
-                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" />
+                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)"/>
                         </div>
 
                         <!-- Add item -->
@@ -99,7 +111,7 @@ const isSaveButtonDisabled = computed(() => {
 
                         <!-- Total Bill Amount -->
                         <label for="billAmt">
-                            Total Bill Amount: {{ }}
+                            Total Bill Amount: {{ totalOrderAmt }}
                         </label>
                     </fieldset>
         

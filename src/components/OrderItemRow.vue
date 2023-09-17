@@ -1,14 +1,19 @@
 <script setup>
-import { products } from '../util/constants';
+import { products } from '@/util/constants';
 import { defineProps, defineEmits, ref, watch, computed } from 'vue';
 
 const props = defineProps({
     index: Number,
     name: String,
-    qty: Number
+    qty: Number  
 })
 
-defineEmits(['delete-item', 'update:total-price', 'update:name', 'update:qty'])
+const emit = defineEmits({ 
+    "delete-item": (value) => typeof value === "number" && value >= 0, 
+    "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >=0),
+    'update:name': (value) => typeof value === "string", 
+    'update:qty': (value) => typeof value === "number" && value >= 0 
+})
 
 let totalPrice = ref(0);
 
@@ -18,6 +23,10 @@ const productQty = computed(() => props.qty);
 watch([productName, productQty], () => {
   const product = products.find((p) => p.name === productName.value);
   totalPrice.value = product ? product.mrp * productQty.value : 0;
+});
+
+watch(totalPrice, (newVal, oldVal) => {
+  emit('update:total-price', productName, newVal);
 });
 
 // Expose the totalPrice to the template
