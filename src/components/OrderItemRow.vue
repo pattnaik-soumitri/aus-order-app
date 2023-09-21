@@ -1,6 +1,6 @@
 <script setup>
 import { products } from '@/util/constants';
-import { defineProps, defineEmits, ref, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
     index: Number,
@@ -10,7 +10,7 @@ const props = defineProps({
 
 const emit = defineEmits({ 
     "delete-item": (value) => typeof value === "number" && value >= 0, 
-    "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >=0),
+    "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
     'update:name': (value) => typeof value === "string", 
     'update:qty': (value) => typeof value === "number" && value >= 0 
 })

@@ -1,6 +1,6 @@
 <script setup>
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { ref, computed } from 'vue';
+import {ref, computed} from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
 import { db } from '@/fb';
 import { useSessionStore } from '@/stores/userSessionStore';
@@ -23,11 +23,10 @@ const blankOrder = {
     salesman: '',
     items: [ {name: '', qty: 0} ],
     status: 'placed',
-    notes: ''
+    notes: '',
+    totalBillAmt: 0
 };
 const order = ref({...blankOrder});
-
-const totalOrderAmt = ref(0);
 
 const notificationMsg = ref('');
 
@@ -35,13 +34,19 @@ const addOrderItem = () => {
     order.value.items.push({name: '', qty: 0});
 }
 
+const calcTotalBillAmt = () => {
+  let totalOrderAmt = 0;
+  itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
+  order.value.totalBillAmt = totalOrderAmt;
+  console.log(`total bill amount is: ${totalOrderAmt}`);
+}
+
 const itemTotalPrices = new Map();
 const updateTotalOrderAmt = (productName, itemAmount) => {
   itemTotalPrices.set(productName, itemAmount);
-  totalOrderAmt.value = 0;
-  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value} && itemTotalPrices is ${itemTotalPrices} and total bill amount is: ${totalOrderAmt}`);
+  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value}`);
   // calculate the total order amount
-  itemTotalPrices.forEach((value, key) => totalOrderAmt.value += value);
+  calcTotalBillAmt();
 }
 // watch(order.value.items, updateTotalOrderAmt, { deep: true });
 
@@ -58,13 +63,17 @@ const submit = async () => {
         items: order.value.items,
         status: order.value.status,
         notes: order.value.notes,
+        totalBillAmt: order.value.totalBillAmt,
         createdBy: useSessionStore().currentUser.email
     }
     const docRef = await addDoc(ordersColl, docData);
     console.debug("Document written with ID: ", docRef.id);
 
     notificationMsg.value = `Order created | sln: ${docData.sln}`;
+    itemTotalPrices.clear();
+    calcTotalBillAmt();
     order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
+    console.log(`the order value of bill after doc write is: ${order.value.totalBillAmt}`);
     loading.value = false;
 }
 
@@ -111,7 +120,7 @@ const isSaveButtonDisabled = computed(() => {
 
                         <!-- Total Bill Amount -->
                         <label for="billAmt">
-                            Total Bill Amount: {{ totalOrderAmt }}
+                          <p>Total Bill Amount: {{ order.totalBillAmt }}</p>
                         </label>
                     </fieldset>
         
