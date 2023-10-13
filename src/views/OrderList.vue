@@ -98,6 +98,7 @@ const closeModal = () => {
         success: true,
         msg: ''
     };
+    itemTotalPrices.clear();
     fetchOrders(); // Fetch fresh orders after closing the modal
 }
 
@@ -112,6 +113,8 @@ const isSaveButtonDisabled = computed(() => {
     return hasInvalidQuantity || noItem;
 });
 
+// Define property to use variable in template   ok!
+//defineProps(['products']);
 
 </script>
 
@@ -195,7 +198,7 @@ const isSaveButtonDisabled = computed(() => {
                     <legend><label>Item List</label></legend>
 
                     <div v-for="(item, i) in currentOrder?.items" :key="i">
-                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" />
+                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" :products="products" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" />
                     </div>
 
                     <!-- Add item -->

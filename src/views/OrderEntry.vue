@@ -1,4 +1,5 @@
 <script setup>
+import { products } from '@/util/constants';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import {ref, computed} from 'vue';
 import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
@@ -112,7 +113,7 @@ const isSaveButtonDisabled = computed(() => {
                         <legend><label>Item List</label></legend>
                         
                         <div v-for="(item, i) in order.items" :key="i">
-                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)"/>
+                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)"/>
                         </div>
 
                         <!-- Add item -->
