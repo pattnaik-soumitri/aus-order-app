@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import OrderItemRow from '../components/OrderItemRow.vue';
-import { db } from '../fb.js';
+import { products } from '@/util/constants';
+import { db } from '@/fb';
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
 const notification = ref({
@@ -30,6 +31,23 @@ onMounted(async () => {
     await fetchOrders();
 });
 
+// Total Bill Amount calculate
+const calcTotalBillAmt = () => {
+  let totalOrderAmt = 0;
+  itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
+  currentOrder.value.totalBillAmt = totalOrderAmt;
+  console.log(`total bill amount is: ${totalOrderAmt}`);
+}
+
+const itemTotalPrices = new Map();
+const updateTotalOrderAmt = (productName, itemAmount) => {
+  itemTotalPrices.set(productName, itemAmount);
+  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value}`);
+  // calculate the total order amount
+  calcTotalBillAmt();
+}
+
+
 const updateStatus = async () => {
     if (isSaveButtonDisabled.value) {
          // Button is disabled, do not save data
@@ -45,6 +63,7 @@ const updateStatus = async () => {
             items: currentOrder.value.items,
             status: currentOrder.value.status,
             notes: currentOrder.value.notes,
+            totalBillAmt: currentOrder.value.totalBillAmt,
             createdBy: currentOrder.value.createdBy
         });
         notification.value.msg = 'Saved successfully.';
@@ -105,13 +124,14 @@ const isSaveButtonDisabled = computed(() => {
                     <table role="grid">
                         <thead>
                             <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Customer</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Salesman</th>
-                            <th scope="col">Notes</th>
-                            <th scope="col">Created By</th>
+                              <th scope="col">#</th>
+                              <th scope="col">Customer</th>
+                              <th scope="col">Date</th>
+                              <th scope="col">Status</th>
+                              <th scope="col">Salesman</th>
+                              <th scope="col">Notes</th>
+                              <th scope="col">Created By</th>
+                              <th scope="col">Total bill Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,6 +143,7 @@ const isSaveButtonDisabled = computed(() => {
                                 <td>{{ order?.salesman }}</td>
                                 <td>{{ order?.notes }}</td>
                                 <td>{{ order?.createdBy }}</td>
+                                <td>{{ order?.totalBillAmt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -179,6 +200,11 @@ const isSaveButtonDisabled = computed(() => {
 
                     <!-- Add item -->
                     <button type="button" @click="addOrderItem" class="secondary" :disabled=isSaveButtonDisabled>Add item</button>
+
+                    <!-- Total Bill Amount -->
+                    <label for="billAmt">
+                      <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }}</p>
+                    </label>
                 </fieldset>
 
                 <hr />
@@ -252,6 +278,11 @@ const isSaveButtonDisabled = computed(() => {
                 id="notes"
                 v-model="currentOrder.notes"
                 ></textarea>
+            </label>
+
+            <!-- Total Bill Amount -->
+            <label for="billAmt">
+              <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }}</p>
             </label>
         </div>
         <footer>
