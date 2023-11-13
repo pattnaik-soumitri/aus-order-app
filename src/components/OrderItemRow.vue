@@ -6,12 +6,17 @@ const props = defineProps({
     index: Number,
     name: String,
     qty: Number,
-    products: Array
+    products: Array,
+    discount: {
+      type: Number,
+      default: 30,
+    }
 })
 
 const emit = defineEmits({ 
     "delete-item": (value) => typeof value === "number" && value >= 0, 
     "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
+    "update:discount": (value) => typeof value === "number" && value >= 0,
     'update:name': (value) => typeof value === "string", 
     'update:qty': (value) => typeof value === "number" && value >= 0 
 })
@@ -19,18 +24,38 @@ const emit = defineEmits({
 const products = props.products;
 const productName = computed(() => props.name);
 const productQty = computed(() => props.qty);
+const discountRate = computed(() => props.discount);
 
-const totalPrice = computed(() => {
+const calcTotalPrice = () => {
   console.log(products);
   console.log(productName.value);
   const product = products.find((p) => {
     return p.name === productName.value;
   });
   console.log(product);
-  const total = product ? product.mrp * productQty.value : 0;
-  console.log(total);
+  console.log("props.discount:" + props.discount);
+  console.log("discountRate.value: " + discountRate.value);
+  const discount_rate = (typeof discountRate.value === "number" && discountRate.value >= 0) ? discountRate.value : 0;
+  console.log(`the discount rate is: ${discount_rate}`);
+  emit('update:discount', discount_rate);
+  const total = product ? Math.ceil(product.mrp * productQty.value * (1 -  discount_rate/100)) : 0;
+  console.log(`total is: ${total} and mrp is: ${(product ? product.mrp : '')} and qty is: ${productQty.value}`);
+
   emit('update:total-price', productName, total);
   return total;
+}
+
+/*
+const totalPrice = computed(() => {
+  const total = calcTotalPrice();
+  emit('update:total-price', productName, total);
+  return total;
+});
+*/
+const totalPrice = ref(0);
+
+watch([productName, productQty, discountRate], () => {
+  totalPrice.value = calcTotalPrice();
 });
 
 /*
@@ -94,9 +119,24 @@ defineExpose({
             <small class="notification red" v-if="qty < 1">Qty cannot be 0</small>
         </label>
     </div>
-    <label for="price">
+
+    <!-- pricing section -->
+    <div id="price-section">
+      <label for="price">
         Total Price: {{ totalPrice }}
-    </label>
+      </label>
+      <label for="discount">
+        Discount:
+          <input
+            type="number"
+            :value="discount"
+            @input="$emit('update:discount', Number($event.target.value))"
+            id="discount"
+            name="discount"
+            :aria-invalid="discount < 1"
+          />
+      </label>
+    </div>
 </template>
 
 <style scoped>
@@ -111,5 +151,33 @@ defineExpose({
 
 .sln {
     color: var(--primary);
+}
+
+#price-section {
+  display: flex;
+  gap: 90px;
+}
+
+#price-section label {
+  display: flex;
+  align-items: center;
+}
+
+#price-section label:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding-right: 10px;
+}
+
+#price-section label:last-child  > input {
+  padding-left: 20px;
+}
+
+#discount {
+  width: 50%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
 }
 </style>

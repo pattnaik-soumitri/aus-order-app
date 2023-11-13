@@ -7,6 +7,8 @@ import { db } from '@/fb';
 import { useSessionStore } from '@/stores/userSessionStore';
 
 const loading = ref(false);
+const discRate = ref(0);
+
 const getFormattedDate = (date) => {
   var year = date.getFullYear();
 
@@ -51,6 +53,11 @@ const updateTotalOrderAmt = (productName, itemAmount) => {
 }
 // watch(order.value.items, updateTotalOrderAmt, { deep: true });
 
+// get the discountRate
+const getDiscountRate = (discount_rate) => {
+    discRate.value = discount_rate;
+}
+
 const submit = async () => {
     loading.value = true;
     const ordersColl = collection(db, "orders");
@@ -64,6 +71,7 @@ const submit = async () => {
         items: order.value.items,
         status: order.value.status,
         notes: order.value.notes,
+        discount: discRate.value,
         totalBillAmt: order.value.totalBillAmt,
         createdBy: useSessionStore().currentUser.email
     }
@@ -113,7 +121,7 @@ const isSaveButtonDisabled = computed(() => {
                         <legend><label>Item List</label></legend>
                         
                         <div v-for="(item, i) in order.items" :key="i">
-                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)"/>
+                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" @update:discount="(discount_rate) => getDiscountRate(discount_rate)"/>
                         </div>
 
                         <!-- Add item -->
