@@ -51,7 +51,6 @@ const updateTotalOrderAmt = (productName, itemAmount) => {
   // calculate the total order amount
   calcTotalBillAmt();
 }
-// watch(order.value.items, updateTotalOrderAmt, { deep: true });
 
 // get the discountRate
 const getDiscountRate = (discount_rate) => {

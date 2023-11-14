@@ -112,10 +112,6 @@ const isSaveButtonDisabled = computed(() => {
     
     return hasInvalidQuantity || noItem;
 });
-
-// Define property to use variable in template   ok!
-//defineProps(['products']);
-
 </script>
 
 <template>
@@ -198,7 +194,7 @@ const isSaveButtonDisabled = computed(() => {
                     <legend><label>Item List</label></legend>
 
                     <div v-for="(item, i) in currentOrder?.items" :key="i">
-                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" :index="i" :products="products" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" />
+                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" />
                     </div>
 
                     <!-- Add item -->

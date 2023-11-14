@@ -27,52 +27,26 @@ const productQty = computed(() => props.qty);
 const discountRate = computed(() => props.discount);
 
 const calcTotalPrice = () => {
-  console.log(products);
-  console.log(productName.value);
   const product = products.find((p) => {
     return p.name === productName.value;
   });
-  console.log(product);
-  console.log("props.discount:" + props.discount);
-  console.log("discountRate.value: " + discountRate.value);
   const discount_rate = (typeof discountRate.value === "number" && discountRate.value >= 0) ? discountRate.value : 0;
-  console.log(`the discount rate is: ${discount_rate}`);
   emit('update:discount', discount_rate);
   const total = product ? Math.ceil(product.mrp * productQty.value * (1 -  discount_rate/100)) : 0;
-  console.log(`total is: ${total} and mrp is: ${(product ? product.mrp : '')} and qty is: ${productQty.value}`);
 
+  // pass data from child to parent for updating totalPrice in parent
   emit('update:total-price', productName, total);
   return total;
 }
 
-/*
-const totalPrice = computed(() => {
-  const total = calcTotalPrice();
-  emit('update:total-price', productName, total);
-  return total;
-});
-*/
+// define and initialize totalPrice value
 const totalPrice = ref(0);
+// to populate data for each product while editing orders from orderList, initialize here
+totalPrice.value = calcTotalPrice();
 
 watch([productName, productQty, discountRate], () => {
   totalPrice.value = calcTotalPrice();
 });
-
-/*
-let totalPrice = ref(0);
-
-const productName = computed(() => props.name);
-const productQty = computed(() => props.qty);
-
-watch([productName, productQty], () => {
-  const product = products.find((p) => p.name === productName.value);
-  totalPrice.value = product ? product.mrp * productQty.value : 0;
-});
-
-watch(totalPrice, (newVal, oldVal) => {
-  emit('update:total-price', productName, newVal);
-});
-*/
 
 // Expose the totalPrice to the template
 defineExpose({
