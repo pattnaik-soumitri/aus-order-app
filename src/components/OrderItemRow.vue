@@ -95,9 +95,16 @@ defineExpose({
     </div>
 
     <!-- pricing section -->
-    <div id="price-section">
+    <div class="grid">
       <label for="price">
-        Total Price: {{ totalPrice }}
+        Item Price:
+          <input
+              type="number"
+              :value="totalPrice"
+              id="itemPrice"
+              name="itemPrice"
+              readonly=”readonly”
+          />
       </label>
       <label for="discount">
         Discount:
@@ -127,31 +134,4 @@ defineExpose({
     color: var(--primary);
 }
 
-#price-section {
-  display: flex;
-  gap: 90px;
-}
-
-#price-section label {
-  display: flex;
-  align-items: center;
-}
-
-#price-section label:last-child {
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  padding-right: 10px;
-}
-
-#price-section label:last-child  > input {
-  padding-left: 20px;
-}
-
-#discount {
-  width: 50%;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
 </style>
