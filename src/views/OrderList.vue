@@ -31,7 +31,7 @@ onMounted(async () => {
     await fetchOrders();
 });
 
-// Total Bill Amount calculate
+// calculate total discounted amount
 const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
@@ -39,12 +39,30 @@ const calcTotalBillAmt = () => {
   console.log(`total bill amount is: ${totalOrderAmt}`);
 }
 
+// calculate total mrp amount
+const calcTotalMrpAmount = () => {
+  let totalMrpAmount = 0;
+  itemTotalMrpPrices.forEach((value, key) => totalMrpAmount += value);
+  currentOrder.value.totalMrpBillAmt = totalMrpAmount;
+  console.log(`total bill amount is: ${totalMrpAmount}`);
+}
+
+// for updating total discounted amt
 const itemTotalPrices = new Map();
 const updateTotalOrderAmt = (productName, itemAmount) => {
   itemTotalPrices.set(productName, itemAmount);
   console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalBillAmt();
+}
+
+// for updating total mrp amt
+const itemTotalMrpPrices = new Map();
+const updateTotalMrpAmt = (productName, mrpTotal) => {
+  itemTotalMrpPrices.set(productName, mrpTotal);
+  console.log(`item mrp amount passed is: ${mrpTotal} for the product name: ${productName.value}`);
+  // calculate the total order amount
+  calcTotalMrpAmount();
 }
 
 
@@ -64,6 +82,7 @@ const updateStatus = async () => {
             status: currentOrder.value.status,
             notes: currentOrder.value.notes,
             totalBillAmt: currentOrder.value.totalBillAmt,
+            totalMrpBillAmt: currentOrder.value.totalMrpBillAmt,
             createdBy: currentOrder.value.createdBy
         });
         notification.value.msg = 'Saved successfully.';
@@ -194,7 +213,7 @@ const isSaveButtonDisabled = computed(() => {
                     <legend><label>Item List</label></legend>
 
                     <div v-for="(item, i) in currentOrder?.items" :key="i">
-                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" />
+                        <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="(idx) => currentOrder.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" @update:total-mrp-price="(productName, mrpTotal) => updateTotalMrpAmt(productName, mrpTotal)" />
                     </div>
 
                     <!-- Add item -->
@@ -202,7 +221,7 @@ const isSaveButtonDisabled = computed(() => {
 
                     <!-- Total Bill Amount -->
                     <label for="billAmt">
-                      <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }}</p>
+                      <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder.totalBillAmt > 1">({{currentOrder.totalMrpBillAmt}})</small></p>
                     </label>
                 </fieldset>
 
@@ -281,7 +300,7 @@ const isSaveButtonDisabled = computed(() => {
 
             <!-- Total Bill Amount -->
             <label for="billAmt">
-              <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }}</p>
+              <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder.totalBillAmt > 1">({{currentOrder.totalMrpBillAmt}})</small></p>
             </label>
         </div>
         <footer>
@@ -377,6 +396,14 @@ button:not(.disabled) {
 
 .red {
     color: red;
+}
+
+.green {
+  color: green;
+}
+
+.strikethrough {
+  text-decoration: line-through;
 }
 
 .symbols {

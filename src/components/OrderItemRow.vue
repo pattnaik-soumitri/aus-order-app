@@ -1,6 +1,6 @@
 <script setup>
 //import { products } from '@/util/constants';
-import { ref, watch, computed } from 'vue';
+import {computed, ref, watch} from 'vue';
 
 const props = defineProps({
     index: Number,
@@ -16,6 +16,7 @@ const props = defineProps({
 const emit = defineEmits({ 
     "delete-item": (value) => typeof value === "number" && value >= 0, 
     "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
+    "update:total-mrp-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
     "update:discount": (value) => typeof value === "number" && value >= 0,
     'update:name': (value) => typeof value === "string", 
     'update:qty': (value) => typeof value === "number" && value >= 0 
@@ -39,18 +40,40 @@ const calcTotalPrice = () => {
   return total;
 }
 
+const calcTotalMrpPrice = () => {
+  const product = products.find((p) => {
+    return p.name === productName.value;
+  });
+
+  // total MRP price
+  const mrpTotal = product ? product.mrp * productQty.value : 0;
+
+  // pass data from child to parent for updating totalPrice in parent
+  emit('update:total-mrp-price', productName, mrpTotal);
+
+  return mrpTotal;
+}
+
 // define and initialize totalPrice value
 const totalPrice = ref(0);
 // to populate data for each product while editing orders from orderList, initialize here
 totalPrice.value = calcTotalPrice();
 
+// for total mrp price calculation
+const totalMrpPrice = ref(0);
+totalMrpPrice.value = calcTotalMrpPrice();
+
+
 watch([productName, productQty, discountRate], () => {
   totalPrice.value = calcTotalPrice();
+  totalMrpPrice.value = calcTotalMrpPrice();
 });
 
 // Expose the totalPrice to the template
 defineExpose({
-  totalPrice
+  totalPrice,
+  totalMrpPrice,
+  discountRate
 });
 </script>
 
@@ -103,8 +126,9 @@ defineExpose({
               :value="totalPrice"
               id="itemPrice"
               name="itemPrice"
-              readonly=”readonly”
+              readonly="readonly"
           />
+          <small class="notification green strikethrough" v-if="qty >= 1">({{totalMrpPrice}})</small>
       </label>
       <label for="discount">
         Discount:
@@ -130,8 +154,16 @@ defineExpose({
     color: red;
 }
 
+.green {
+  color: green;
+}
+
 .sln {
     color: var(--primary);
+}
+
+.strikethrough {
+  text-decoration: line-through;
 }
 
 </style>

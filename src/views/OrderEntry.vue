@@ -27,7 +27,8 @@ const blankOrder = {
     items: [ {name: '', qty: 0} ],
     status: 'placed',
     notes: '',
-    totalBillAmt: 0
+    totalBillAmt: 0,
+    totalMrpBillAmt: 0
 };
 const order = ref({...blankOrder});
 
@@ -37,6 +38,7 @@ const addOrderItem = () => {
     order.value.items.push({name: '', qty: 0});
 }
 
+// calculate total discounted amount
 const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
@@ -44,13 +46,32 @@ const calcTotalBillAmt = () => {
   console.log(`total bill amount is: ${totalOrderAmt}`);
 }
 
+// calculate total mrp amount
+const calcTotalMrpAmount = () => {
+  let totalMrpAmount = 0;
+  itemTotalMrpPrices.forEach((value, key) => totalMrpAmount += value);
+  order.value.totalMrpBillAmt = totalMrpAmount;
+  console.log(`total bill amount is: ${totalMrpAmount}`);
+}
+
+// for updating total discounted amt
 const itemTotalPrices = new Map();
 const updateTotalOrderAmt = (productName, itemAmount) => {
   itemTotalPrices.set(productName, itemAmount);
-  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value}`);
+  console.log(`item discount amount passed is: ${itemAmount} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalBillAmt();
 }
+
+// for updating total mrp amt
+const itemTotalMrpPrices = new Map();
+const updateTotalMrpAmt = (productName, mrpTotal) => {
+  itemTotalMrpPrices.set(productName, mrpTotal);
+  console.log(`item mrp amount passed is: ${mrpTotal} for the product name: ${productName.value}`);
+  // calculate the total order amount
+  calcTotalMrpAmount();
+}
+
 
 // get the discountRate
 const getDiscountRate = (discount_rate) => {
@@ -72,6 +93,7 @@ const submit = async () => {
         notes: order.value.notes,
         discount: discRate.value,
         totalBillAmt: order.value.totalBillAmt,
+        totalMrpBillAmt: order.value.totalMrpBillAmt,
         createdBy: useSessionStore().currentUser.email
     }
     const docRef = await addDoc(ordersColl, docData);
@@ -80,7 +102,7 @@ const submit = async () => {
     notificationMsg.value = `Order created | sln: ${docData.sln}`;
     itemTotalPrices.clear();
     calcTotalBillAmt();
-    order.value = {...blankOrder, items: [ {name: '', qty: 0} ]};
+    order.value = {...blankOrder, items: [ {name: '', qty: 0} ], discount: 0};
     console.log(`the order value of bill after doc write is: ${order.value.totalBillAmt}`);
     loading.value = false;
 }
@@ -120,7 +142,7 @@ const isSaveButtonDisabled = computed(() => {
                         <legend><label>Item List</label></legend>
                         
                         <div v-for="(item, i) in order.items" :key="i">
-                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount) => updateTotalOrderAmt(productName, itemAmount)" @update:discount="(discount_rate) => getDiscountRate(discount_rate)"/>
+                            <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount, totalMrpAmount) => updateTotalOrderAmt(productName, itemAmount, totalMrpAmount)" @update:total-mrp-price="(productName, mrpTotal) => updateTotalMrpAmt(productName, mrpTotal)" @update:discount="(discount_rate) => getDiscountRate(discount_rate)"/>
                         </div>
 
                         <!-- Add item -->
@@ -128,7 +150,7 @@ const isSaveButtonDisabled = computed(() => {
 
                         <!-- Total Bill Amount -->
                         <label for="billAmt">
-                          <p>Total Bill Amount: {{ order.totalBillAmt }}</p>
+                          <p>Total Bill Amount: {{ order.totalBillAmt }} <small class="notification green strikethrough" v-if="order.totalBillAmt > 1">({{order.totalMrpBillAmt}})</small></p>
                         </label>
                     </fieldset>
         
@@ -164,6 +186,7 @@ hr {
 .submit {
     margin-top: 1rem;
 }
+
 .order-item-container {
     border: solid 1px gray;
     border-radius: 5px;
@@ -173,5 +196,13 @@ hr {
     filter: alpha(opacity=80);
     -moz-opacity: 0.8;
     opacity: 0.8;
+}
+
+.green {
+  color: green;
+}
+
+.strikethrough {
+  text-decoration: line-through;
 }
 </style>
