@@ -133,3 +133,6 @@ dist
 .vscode
 .idea
 .firebase
+
+# for mac files
+.DS_Store
