@@ -9,7 +9,7 @@ const props = defineProps({
     products: Array,
     discount: {
       type: Number,
-      default: 30,
+      default: 30.00,
     }
 })
 
@@ -33,7 +33,7 @@ const calcTotalPrice = () => {
   });
   const discount_rate = (typeof discountRate.value === "number" && discountRate.value >= 0) ? discountRate.value : 0;
   emit('update:discount', discount_rate);
-  const total = product ? Math.ceil(product.mrp * productQty.value * (1 -  discount_rate/100)) : 0;
+  const total = product ? parseFloat((product.mrp * productQty.value * (1 -  discount_rate/100)).toFixed(2)) : 0;
 
   // pass data from child to parent for updating totalPrice in parent
   emit('update:total-price', productName, total);
@@ -104,7 +104,7 @@ defineExpose({
         <label for="qty">
         Qty
         <input 
-            type="number" 
+            type="number"
             :value="qty"
             @input="$emit('update:qty', Number($event.target.value))"
             id="qty" 
@@ -119,27 +119,33 @@ defineExpose({
 
     <!-- pricing section -->
     <div class="grid">
-      <label for="price">
+      <label for="itemPrice">
         Item Price:
+        <div class="currency-wrap">
+          <span class="currency-code">&#8377;</span>
           <input
               type="number"
               :value="totalPrice"
               id="itemPrice"
               name="itemPrice"
               readonly="readonly"
+              class="text-currency"
           />
-          <small class="notification green strikethrough" v-if="qty >= 1">({{totalMrpPrice}})</small>
+        </div>
+        <small class="notification green strikethrough" v-if="qty >= 1">( &#8377; {{totalMrpPrice}})</small>
       </label>
       <label for="discount">
-        Discount:
+        Discount &#37;:
           <input
             type="number"
             :value="discount"
             @input="$emit('update:discount', Number($event.target.value))"
+            step="0.01"
             id="discount"
             name="discount"
-            :aria-invalid="discount < 1"
+            :aria-invalid="discount <= 0"
           />
+          <small class="notification red" v-if="discount <= 0">No Discount!</small>
       </label>
     </div>
 </template>
@@ -164,6 +170,22 @@ defineExpose({
 
 .strikethrough {
   text-decoration: line-through;
+}
+
+.currency-wrap{
+    position:relative;
+}
+  
+.currency-code{
+    position:absolute;
+    left:8px;
+    top:16px;
+}
+  
+.text-currency{
+    padding:10px 20px;
+    border:solid 1px #ccc;
+    border-radius:5px;
 }
 
 </style>

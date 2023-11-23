@@ -35,16 +35,16 @@ onMounted(async () => {
 const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
-  currentOrder.value.totalBillAmt = totalOrderAmt;
-  console.log(`total bill amount is: ${totalOrderAmt}`);
+  currentOrder.value.totalBillAmt = Math.round(totalOrderAmt);
+  console.log(`total bill amount is: ${Math.round(totalOrderAmt)}`);
 }
 
 // calculate total mrp amount
 const calcTotalMrpAmount = () => {
   let totalMrpAmount = 0;
   itemTotalMrpPrices.forEach((value, key) => totalMrpAmount += value);
-  currentOrder.value.totalMrpBillAmt = totalMrpAmount;
-  console.log(`total bill amount is: ${totalMrpAmount}`);
+  currentOrder.value.totalMrpBillAmt =  Math.round(totalMrpAmount);
+  console.log(`total bill amount is: ${Math.round(totalMrpAmount)}`);
 }
 
 // for updating total discounted amt
@@ -161,7 +161,7 @@ const isSaveButtonDisabled = computed(() => {
                                 <td>{{ order?.salesman }}</td>
                                 <td>{{ order?.notes }}</td>
                                 <td>{{ order?.createdBy }}</td>
-                                <td>{{ order?.totalBillAmt }}</td>
+                                <td>&#8377; {{ order?.totalBillAmt }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -221,7 +221,7 @@ const isSaveButtonDisabled = computed(() => {
 
                     <!-- Total Bill Amount -->
                     <label for="billAmt">
-                      <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder.totalBillAmt > 1">({{currentOrder.totalMrpBillAmt}})</small></p>
+                      <p>Total Bill Amount: &#8377; {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder?.totalBillAmt > 1">( &#8377; {{currentOrder?.totalMrpBillAmt}})</small></p>
                     </label>
                 </fieldset>
 
@@ -300,7 +300,7 @@ const isSaveButtonDisabled = computed(() => {
 
             <!-- Total Bill Amount -->
             <label for="billAmt">
-              <p>Total Bill Amount: {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder.totalBillAmt > 1">({{currentOrder.totalMrpBillAmt}})</small></p>
+              <p>Total Bill Amount: &#8377; {{ currentOrder?.totalBillAmt }} <small class="notification green strikethrough" v-if="currentOrder?.totalBillAmt > 1">( &#8377; {{currentOrder?.totalMrpBillAmt}})</small></p>
             </label>
         </div>
         <footer>

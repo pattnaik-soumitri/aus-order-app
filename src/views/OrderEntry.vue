@@ -42,8 +42,8 @@ const addOrderItem = () => {
 const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
-  order.value.totalBillAmt = totalOrderAmt;
-  console.log(`total bill amount is: ${totalOrderAmt}`);
+  order.value.totalBillAmt = Math.round(totalOrderAmt);
+  console.log(`total bill amount is: ${Math.round(totalOrderAmt)}`);
 }
 
 // calculate total mrp amount
@@ -150,7 +150,7 @@ const isSaveButtonDisabled = computed(() => {
 
                         <!-- Total Bill Amount -->
                         <label for="billAmt">
-                          <p>Total Bill Amount: {{ order.totalBillAmt }} <small class="notification green strikethrough" v-if="order.totalBillAmt > 1">({{order.totalMrpBillAmt}})</small></p>
+                          <p>Total Bill Amount: &#8377; {{ order.totalBillAmt }} <small class="notification green strikethrough" v-if="order.totalBillAmt > 1.00">( &#8377; {{order.totalMrpBillAmt}})</small></p>
                         </label>
                     </fieldset>
         

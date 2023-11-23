@@ -237,6 +237,7 @@ const products = [
     { slno: 236, name: 'Sundari Rasayan 200 gm', mrp: 135.00},
     { slno: 237, name: 'Sri Balm 10 gm', mrp: 30.00 },
     { slno: 238, name: 'Sukhmavedi 6 gm', mrp: 5.00},
+    { slno: 238, name: 'Sukhmavedi 6 gm(50 pkt)', mrp: 500.00},
     { slno: 239, name: 'Sukhmavedi 50 gm', mrp: 45.00},
     { slno: 240, name: 'Sukhmavedi 100 gm', mrp: 90.00},
     { slno: 241, name: 'Aswagandha Churna 100gm pkt.', mrp: 110.00},

@@ -16,6 +16,18 @@ const firebaseConfig = {
   appId: "1:943914175430:web:bd256bf86aa0279fca80c7"
 };
 
+// Your web app's Firebase Testing Configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyBaOrPY98aOjeEWLbzjkADcK5m8hyPJjDY",
+//   authDomain: "aus-order-app-test.firebaseapp.com",
+//   projectId: "aus-order-app-test",
+//   storageBucket: "aus-order-app-test.appspot.com",
+//   messagingSenderId: "609627588452",
+//   appId: "1:609627588452:web:813ba06e1db689b8509c71",
+//   measurementId: "G-HHV0BYQ8YX"
+// };
+
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
