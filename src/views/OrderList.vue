@@ -20,14 +20,14 @@ const editBtnEnabled = ref(false);
 const fetchOrders = async () => {
     orders.value = []; // Clear the orders array
     const q = query(collection(db, "orders"), orderBy('sln', 'desc'));
-    
+
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
         orders.value.push({...doc.data(), id: doc.id});
     });
 };
 
-onMounted(async () => {   
+onMounted(async () => {
     await fetchOrders();
 });
 
@@ -92,7 +92,7 @@ const updateStatus = async () => {
         notification.value.msg = 'Failed.';
     }
     isLoading.value = false;
- 
+
 }
 
 const orderDetails = async () => {
@@ -110,7 +110,7 @@ const orderDetails = async () => {
 }
 
 const closeModal = () => {
-    currentOrder.value = null; 
+    currentOrder.value = null;
     modalIsOpen.value = false;
     editBtnEnabled.value = false;
     notification.value = {
@@ -128,7 +128,7 @@ const addOrderItem = () => {
 const isSaveButtonDisabled = computed(() => {
     const noItem = currentOrder.value?.items == null || currentOrder.value?.items.length === 0;
     const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
-    
+
     return hasInvalidQuantity || noItem;
 });
 </script>
@@ -150,6 +150,7 @@ const isSaveButtonDisabled = computed(() => {
                               <th scope="col">Notes</th>
                               <th scope="col">Created By</th>
                               <th scope="col">Total bill Amount</th>
+                              <th scope="col">Invoice Download</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -162,6 +163,7 @@ const isSaveButtonDisabled = computed(() => {
                                 <td>{{ order?.notes }}</td>
                                 <td>{{ order?.createdBy }}</td>
                                 <td>&#8377; {{ order?.totalBillAmt }}</td>
+                                <td><button @click.prevent="">Invoice</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -278,11 +280,11 @@ const isSaveButtonDisabled = computed(() => {
                     {{ item?.name }}  <code>{{ item?.qty }}</code>
                 </li>
             </ol>
-            
+
             <label for="status">Status
-                <select 
+                <select
                     id="status"
-                    v-model="currentOrder.status"   
+                    v-model="currentOrder.status"
                 >
                     <option value="placed">Placed</option>
                     <option value="processed">Processed</option>
