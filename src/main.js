@@ -17,4 +17,4 @@ app.use(router)
 // register the vue-echart component here
 app.component('v-chart', VueEcharts);
 
-app.mount('#app')
+app.mount('#app');

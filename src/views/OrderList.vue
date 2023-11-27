@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import { products } from '@/util/constants';
 import { db } from '@/fb';
@@ -126,11 +128,100 @@ const addOrderItem = () => {
 }
 
 const isSaveButtonDisabled = computed(() => {
-    const noItem = currentOrder.value?.items == null || currentOrder.value?.items.length === 0;
+    const noItem = currentOrder.valuecurrentOrder?.sln?.items == null || currentOrder.value?.items.length === 0;
     const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
 
     return hasInvalidQuantity || noItem;
 });
+
+// create the PDF Invoice
+const createPDF = (currentOrder) => {
+  // Create a new instance of jsPDF
+  const doc = new jsPDF();
+
+  // Set the font size
+  doc.setFontSize(12);
+
+  // Add a title
+  doc.text('Invoice', 100, 20);
+
+  // Add some invoice details content
+  doc.text(`Invoice Number: ${currentOrder?.sln}`, 120, 35);
+  doc.text(`Invoice Date: ${currentOrder?.orderDate}`, 120, 45);
+
+  // Add 'Bill From' section
+  doc.text('Bill From:', 20, 60);
+  doc.text('Ayurved Unnati Sansthan', 20, 70);
+  doc.text('Banadevi Patna, Kabisurya Nagar, Ganjam', 20, 80);
+  doc.text('+91 9652976973', 20, 90);
+
+  // Add 'Bill To' section
+  doc.text('Bill To:', 120, 60);
+  doc.text(`${currentOrder?.customerName}`, 120, 70);
+  // doc.text('Customer Address', 150, 80);
+  // doc.text('Customer Contact Details', 150, 80);
+
+  // Add a table (replace this with your actual data)
+  const headers = ['Sln','Item', 'Qty', 'MRP', "Disc", "Total"];
+  let data = [];
+  const invoiceItems = currentOrder.items;
+
+  if (invoiceItems && typeof invoiceItems === 'object') {
+    if (Array.isArray(invoiceItems)) {
+      // If currentOrder is already an array, use it directly
+      console.log(currentOrder);
+      console.log(invoiceItems);
+      console.log(`this ${invoiceItems} is an array already..`);
+      data = invoiceItems.map((item, i) => [
+        `${i + 1}`, // Adding 1 to index to start from 1
+        `${item.name}`,
+        `${item.qty}`,
+        `${item.name === products.name ? products.mrp : 0}`, // Assuming products is an array and you need to find the matching product
+        `${item.discount}`,
+        `${item.totalBillAmt}`
+      ]);
+    } else {
+      // If currentOrder is an object, convert it to an array first
+      const orderArray = Object.values(invoiceItems);
+      console.log(`this orderArray is an object.. needs conversion to array`);
+      console.log(orderArray);
+      data = orderArray.items.map((item, i) => [
+        `${i + 1}`, // Adding 1 to index to start from 1
+        `${item.name}`,
+        `${item.qty}`,
+        `${item.name === products.name ? products.mrp : 0}`, // Assuming products is an array and you need to find the matching product
+        `${item.discount}`,
+        `${item.totalBillAmt}`
+      ]);
+    }
+  }
+
+  if (data.length > 0) {
+    doc.autoTable({
+      startY: 100,
+      head: [headers],
+      body: data,
+    });
+  }
+
+  // Add the total
+  doc.text('Total: $70', 20, doc.autoTable.previous.finalY + 20);
+
+  // Add the total, tax, and discount
+  const total = 70;
+  const tax = total * 0.1; // Assuming a tax rate of 10%
+  const discount = total * 0.05; // Assuming a discount of 5%
+  const finalAmount = total + tax - discount;
+
+  doc.text('Total: $' + total.toFixed(2), 150, doc.autoTable.previous.finalY + 20);
+  doc.text('Tax: $' + tax.toFixed(2), 150, doc.autoTable.previous.finalY + 30);
+  doc.text('Discount: $' + discount.toFixed(2), 150, doc.autoTable.previous.finalY + 40);
+  doc.text('Final Amount: $' + finalAmount.toFixed(2), 150, doc.autoTable.previous.finalY + 50);
+
+  // Save the PDF
+  doc.save('invoice.pdf');
+};
+
 </script>
 
 <template>
@@ -163,7 +254,7 @@ const isSaveButtonDisabled = computed(() => {
                                 <td>{{ order?.notes }}</td>
                                 <td>{{ order?.createdBy }}</td>
                                 <td>&#8377; {{ order?.totalBillAmt }}</td>
-                                <td><button @click.prevent="">Invoice</button></td>
+                                <td><button @click.prevent="createPDF(currentOrder=order)">Invoice</button></td>
                             </tr>
                         </tbody>
                     </table>

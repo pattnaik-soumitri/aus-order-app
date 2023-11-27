@@ -13,13 +13,13 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits({ 
-    "delete-item": (value) => typeof value === "number" && value >= 0, 
+const emit = defineEmits({
+    "delete-item": (value) => typeof value === "number" && value >= 0,
     "update:total-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
     "update:total-mrp-price": (value1, value2) => (typeof value1 === "string") && (typeof value2 === "number" && value2 >= 0),
     "update:discount": (value) => typeof value === "number" && value >= 0,
-    'update:name': (value) => typeof value === "string", 
-    'update:qty': (value) => typeof value === "number" && value >= 0 
+    'update:name': (value) => typeof value === "string",
+    'update:qty': (value) => typeof value === "number" && value >= 0
 })
 
 const products = props.products;
@@ -86,9 +86,9 @@ defineExpose({
             </span>
             <input list="items" :modelValue="name" :value="name" :aria-invalid="name === ''" @input="$emit('update:name', $event.target.value)" placeholder="Item Name">
             <small class="notification red" v-if="name.trim() === ''">Select an item</small>
-            <datalist 
-                id="items" 
-                :value="name" 
+            <datalist
+                id="items"
+                :value="name"
                 @input="$emit('update:name', $event.target.value)"
                 required
                 aria-invalid="true"
@@ -103,13 +103,13 @@ defineExpose({
 
         <label for="qty">
         Qty
-        <input 
+        <input
             type="number"
             :value="qty"
             @input="$emit('update:qty', Number($event.target.value))"
-            id="qty" 
-            name="qty" 
-            placeholder="Qty" 
+            id="qty"
+            name="qty"
+            placeholder="Qty"
             required
             :aria-invalid="qty < 1"
             >
@@ -175,13 +175,13 @@ defineExpose({
 .currency-wrap{
     position:relative;
 }
-  
+
 .currency-code{
     position:absolute;
     left:8px;
     top:16px;
 }
-  
+
 .text-currency{
     padding:10px 20px;
     border:solid 1px #ccc;

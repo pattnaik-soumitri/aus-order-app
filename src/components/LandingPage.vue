@@ -80,5 +80,4 @@ proxyIsLoggedIn.value = isLoggedIn;
     width: 50%;
   }
 }
-
 </style>
