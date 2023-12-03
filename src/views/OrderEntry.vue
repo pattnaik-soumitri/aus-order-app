@@ -2,7 +2,7 @@
 import { products } from '@/util/constants';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import {ref, computed} from 'vue';
-import { collection, addDoc, getCountFromServer } from "firebase/firestore"; 
+import { collection, addDoc, getCountFromServer } from "firebase/firestore";
 import { db } from '@/fb';
 import { useSessionStore } from '@/stores/userSessionStore';
 
@@ -17,7 +17,7 @@ const getFormattedDate = (date) => {
 
   var day = date.getDate().toString();
   day = day.length > 1 ? day : '0' + day;
-  
+
   return year + '-' + month + '-' + day;
 }
 const blankOrder = {
@@ -128,19 +128,19 @@ const isSaveButtonDisabled = computed(() => {
                         Customer Name
                         <input type="text" v-model="order.customerName" id="customer_name" name="customer_name" placeholder="Customer name" required>
                     </label>
-                    
+
                     <label for="date">Date</label>
                     <input type="date" v-model="order.orderDate" id="date" name="date" placeholder="Date" required>
-            
+
                     <label for="salesman">Salesman</label>
                     <input type="text" v-model="order.salesman" id="salesman" name="salesman" placeholder="Salesman" required>
 
                     <label for="notes">Notes</label>
                     <textarea v-model="order.notes" id="notes" name="notes" placeholder="notes"></textarea>
-                            
+
                     <fieldset class="order-item-container">
                         <legend><label>Item List</label></legend>
-                        
+
                         <div v-for="(item, i) in order.items" :key="i">
                             <OrderItemRow v-model:name="item.name" v-model:qty="item.qty" v-model:discount="item.discount" :index="i" :products="products" @delete-item="idx => order.items.splice(idx, 1)" @update:total-price="(productName, itemAmount, totalMrpAmount) => updateTotalOrderAmt(productName, itemAmount, totalMrpAmount)" @update:total-mrp-price="(productName, mrpTotal) => updateTotalMrpAmt(productName, mrpTotal)" @update:discount="(discount_rate) => getDiscountRate(discount_rate)"/>
                         </div>
@@ -153,19 +153,19 @@ const isSaveButtonDisabled = computed(() => {
                           <p>Total Bill Amount: &#8377; {{ order.totalBillAmt }} <small class="notification green strikethrough" v-if="order.totalBillAmt > 1.00">( &#8377; {{order.totalMrpBillAmt}})</small></p>
                         </label>
                     </fieldset>
-        
+
                     <hr/>
-        
+
                     <!-- Button -->
                     <button type="submit" class="submit" :aria-busy="loading" :disabled=isSaveButtonDisabled>Submit</button>
-        
+
                     <!-- {{ order }} -->
-        
+
                     <!-- NOTIFICATION -->
                     <div v-if="notificationMsg" class="notification">
                         <small>{{ notificationMsg }}</small>
                     </div>
-            
+
                 </form>
             </div>
         </div>

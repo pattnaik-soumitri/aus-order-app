@@ -5,7 +5,7 @@ import { use } from 'echarts/core';
 import { CanvasRenderer } from "echarts/renderers";
 import { PieChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
-import Vchart, { THEME_KEY } from 'vue-echarts'; 
+import Vchart, { THEME_KEY } from 'vue-echarts';
 
 // DB imports
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
@@ -84,7 +84,7 @@ async function getTopOrderedProducts(numProducts) {
          // Check if the item already exists in ordersCalculate
         const existingItemIndex = ordersCalculate.value.findIndex(item => item.name === itemName);
         console.log(existingItemIndex);
-        
+
         if (existingItemIndex !== -1) {
           // Item already exists, update the quantity
           ordersCalculate.value = ordersCalculate.value.reduce((updatedArray, existingItem) => {
@@ -100,7 +100,7 @@ async function getTopOrderedProducts(numProducts) {
         }
       });
     });
-    
+
     // After populating ordersCalculate, sort it
     ordersCalculate.value.sort((a, b) => b.qty - a.qty);
 

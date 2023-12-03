@@ -11,6 +11,8 @@
   "dependencies": {
     "echarts": "^5.4.3",
     "firebase": "^9.22.2",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.7.1",
     "pinia": "^2.1.4",
     "vue": "^3.3.4",
     "vue-echarts": "^6.6.1",

@@ -5,7 +5,7 @@ import { auth } from '../fb';
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 
 export const useSessionStore = defineStore('session', () => {
-  
+
     const blankUser = {
         fbUser: null,
         isLoggedIn: false,
@@ -23,7 +23,7 @@ export const useSessionStore = defineStore('session', () => {
         currentUser.value.isLoading = true;
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            // Signed in 
+            // Signed in
             console.debug("login success!", userCredential.user);
 
             // Set state
