@@ -10,7 +10,7 @@ let firebaseConfig;
 const isEmulating = window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1";
 
-if (window.location.hostname === "aus-order-form.web.app") {
+if (window.location.hostname === "https://aus-order-form.web.app/") {
   // Your web app's Firebase configuration
   firebaseConfig = {
     apiKey: "AIzaSyAbq9QugYhv1muMYPtbu7luHV_AMTLak1Q",
