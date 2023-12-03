@@ -4,6 +4,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import OrderItemRow from '../components/OrderItemRow.vue';
 import { products } from '@/util/constants';
+import { fontNotoSansOriya } from '@/fonts/NotoSansOriya.js';
 import { db } from '@/fb';
 import { collection, query, getDocs, orderBy, updateDoc, doc } from "firebase/firestore";
 
@@ -16,6 +17,7 @@ const orders = ref([]);
 
 const currentOrder = ref(null);
 const modalIsOpen = ref(false);
+const isInvoiceButtonClicked = ref(false);
 const isLoading = ref(false);
 const editBtnEnabled = ref(false);
 
@@ -134,64 +136,90 @@ const isSaveButtonDisabled = computed(() => {
     return hasInvalidQuantity || noItem;
 });
 
+const formatDate = (dateString) => {
+  // Split the string into [YYYY, MM, DD]
+  let parts = dateString.split('-');
+
+  // Rearrange to [DD, MM, YYYY] and join with '-'
+  return parts.reverse().join('/');
+}
+
 // create the PDF Invoice
 const createPDF = (currentOrder) => {
   // Create a new instance of jsPDF
   const doc = new jsPDF();
 
-  // Set the font size
-  doc.setFontSize(12);
+  // add the font to jsPDF
+  doc.addFileToVFS("NotoSansOriya-Regular.ttf", fontNotoSansOriya);
+  doc.addFont("NotoSansOriya-Regular.ttf", "NotoSansOriya", "normal");
+	doc.setFont("NotoSansOriya");
 
+  // Set the font sizes
+  const titleFontSize = 18;
+  const headingFontSize = 14;
+  const contentFontSize = 12;
+  const lineSpacing = 8; // Adjust line spacing as needed
+  const horizontalSpacing = 10; // Adjust horizontal spacing as needed
+  const dateFormatted = formatDate(currentOrder?.orderDate);
   // Add a title
+  doc.setFontSize(titleFontSize);
   doc.text('Invoice', 100, 20);
 
   // Add some invoice details content
-  doc.text(`Invoice Number: ${currentOrder?.sln}`, 120, 35);
-  doc.text(`Invoice Date: ${currentOrder?.orderDate}`, 120, 45);
+  doc.setFontSize(contentFontSize);
+  doc.text(`Invoice Number: ${currentOrder?.sln}`, 10, 35);
+  doc.text(`Invoice Date: ${dateFormatted}`, 10, 35 + lineSpacing);
+  console.log(currentOrder?.orderDate);
 
   // Add 'Bill From' section
-  doc.text('Bill From:', 20, 60);
-  doc.text('Ayurved Unnati Sansthan', 20, 70);
-  doc.text('Banadevi Patna, Kabisurya Nagar, Ganjam', 20, 80);
-  doc.text('+91 9652976973', 20, 90);
+  doc.setFontSize(headingFontSize);
+  doc.text('Bill From:', 10, 60);
+  doc.setFontSize(contentFontSize);
+  doc.text('Ayurved Unnati Sansthan', 10, 60 + lineSpacing);
+  doc.text('Banadevi Patna, Kabisurya Nagar, Ganjam', 10, 60 + 2 * lineSpacing);
+  doc.text('+91 9652976973', 10, 60 + 3 * lineSpacing);
 
   // Add 'Bill To' section
-  doc.text('Bill To:', 120, 60);
-  doc.text(`${currentOrder?.customerName}`, 120, 70);
-  // doc.text('Customer Address', 150, 80);
-  // doc.text('Customer Contact Details', 150, 80);
+  doc.setFontSize(headingFontSize);
+  doc.text('Bill To:', 140 + horizontalSpacing, 60);
+  doc.setFontSize(contentFontSize);
+  // Split the customer name into multiple lines if it's too long
+  let customerNameLines = doc.splitTextToSize(currentOrder?.customerName, 50); // Adjust the width as needed
+  for (let i = 0; i < customerNameLines.length; i++) {
+    doc.text(customerNameLines[i], 140 + horizontalSpacing, 60 + lineSpacing * (i + 1));
+  }
 
   // Add a table (replace this with your actual data)
-  const headers = ['Sln','Item', 'Qty', 'MRP', "Disc", "Total"];
+  const headers = ['Sln', 'Item', 'Qty', 'MRP', 'Disc', 'Total'];
   let data = [];
   const invoiceItems = currentOrder.items;
 
   if (invoiceItems && typeof invoiceItems === 'object') {
+    let productData = {};
+    for (let i = 0; i < products.length; i++) {
+      productData[products[i].name] = products[i];
+    }
+
     if (Array.isArray(invoiceItems)) {
       // If currentOrder is already an array, use it directly
-      console.log(currentOrder);
-      console.log(invoiceItems);
-      console.log(`this ${invoiceItems} is an array already..`);
       data = invoiceItems.map((item, i) => [
         `${i + 1}`, // Adding 1 to index to start from 1
         `${item.name}`,
         `${item.qty}`,
-        `${item.name === products.name ? products.mrp : 0}`, // Assuming products is an array and you need to find the matching product
+        `${productData[item.name] ? productData[item.name].mrp : 0}`, // Assuming products is an array and you need to find the matching product
         `${item.discount}`,
-        `${item.totalBillAmt}`
+        `${(productData[item.name].mrp * item.qty * (1 - item.discount / 100)).toFixed(2)}`
       ]);
     } else {
       // If currentOrder is an object, convert it to an array first
       const orderArray = Object.values(invoiceItems);
-      console.log(`this orderArray is an object.. needs conversion to array`);
-      console.log(orderArray);
       data = orderArray.items.map((item, i) => [
         `${i + 1}`, // Adding 1 to index to start from 1
         `${item.name}`,
         `${item.qty}`,
-        `${item.name === products.name ? products.mrp : 0}`, // Assuming products is an array and you need to find the matching product
+        `${productData[item.name] ? productData[item.name].mrp : 0}`, // Assuming products is an array and you need to find the matching product
         `${item.discount}`,
-        `${item.totalBillAmt}`
+        `${(productData[item.name].mrp * item.qty * (1 - item.discount / 100)).toFixed(2)}`
       ]);
     }
   }
@@ -201,25 +229,32 @@ const createPDF = (currentOrder) => {
       startY: 100,
       head: [headers],
       body: data,
+      margin: { top: 10, left: horizontalSpacing, right: horizontalSpacing }
     });
   }
 
+  const currencySymbol = '\u20B9';
+
+  // Calculate the sum of total values
+  const totalSum = data.reduce((sum, item) => sum + parseFloat(item[5]), 0);
+
   // Add the total
-  doc.text('Total: $70', 20, doc.autoTable.previous.finalY + 20);
+  doc.setFontSize(headingFontSize);
+  doc.text(`Total: ${currencySymbol}${totalSum.toFixed(2)}`, 10, doc.autoTable.previous.finalY + 10);
 
-  // Add the total, tax, and discount
-  const total = 70;
+  // Add the total, tax, and final amount
+  const total = totalSum;
   const tax = total * 0.1; // Assuming a tax rate of 10%
-  const discount = total * 0.05; // Assuming a discount of 5%
-  const finalAmount = total + tax - discount;
+  const finalAmount = Math.round(total + tax, 2);
 
-  doc.text('Total: $' + total.toFixed(2), 150, doc.autoTable.previous.finalY + 20);
-  doc.text('Tax: $' + tax.toFixed(2), 150, doc.autoTable.previous.finalY + 30);
-  doc.text('Discount: $' + discount.toFixed(2), 150, doc.autoTable.previous.finalY + 40);
-  doc.text('Final Amount: $' + finalAmount.toFixed(2), 150, doc.autoTable.previous.finalY + 50);
+  doc.setFontSize(contentFontSize+1);
+  doc.text(`Total:    ${currencySymbol}${total.toFixed(2)}`, 150 + horizontalSpacing, doc.autoTable.previous.finalY + 10);
+  doc.text(`Tax:        ${currencySymbol}${tax.toFixed(2)}`, 150 + (horizontalSpacing + 0.9), doc.autoTable.previous.finalY + 2 * lineSpacing);
+  doc.text('____________________', 150 + horizontalSpacing, doc.autoTable.previous.finalY + 3 * (lineSpacing - 2));
+  doc.text(`Final:    ${currencySymbol}${finalAmount.toFixed(2)}`, 150 + (horizontalSpacing + 1), doc.autoTable.previous.finalY + 4 * (lineSpacing - 2));
 
   // Save the PDF
-  doc.save('invoice.pdf');
+  doc.save(`Bill_${currentOrder?.sln}_(${dateFormatted}).pdf`);
 };
 
 </script>
@@ -241,11 +276,11 @@ const createPDF = (currentOrder) => {
                               <th scope="col">Notes</th>
                               <th scope="col">Created By</th>
                               <th scope="col">Total bill Amount</th>
-                              <th scope="col">Invoice Download</th>
+                              <th scope="col">Invoice</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; modalIsOpen = true;">
+                            <tr v-for="order in orders" :key="order?.sln" class="order-item-row" @click="currentOrder = order; (isInvoiceButtonClicked ? modalIsOpen = false : modalIsOpen = true);">
                                 <td>{{ order?.sln }}</td>
                                 <td>{{ order?.customerName }}</td>
                                 <td>{{ order?.orderDate }}</td>
@@ -254,7 +289,7 @@ const createPDF = (currentOrder) => {
                                 <td>{{ order?.notes }}</td>
                                 <td>{{ order?.createdBy }}</td>
                                 <td>&#8377; {{ order?.totalBillAmt }}</td>
-                                <td><button @click.prevent="createPDF(currentOrder=order)">Invoice</button></td>
+                                <td><button id="invoice-btn" @click.prevent="createPDF(currentOrder=order); isInvoiceButtonClicked = true">Invoice</button></td>
                             </tr>
                         </tbody>
                     </table>
@@ -485,6 +520,32 @@ const createPDF = (currentOrder) => {
 
 button:not(.disabled) {
   cursor: pointer; /* Normal cursor for non-disabled buttons */
+}
+
+#invoice-btn {
+  display: inline-block;
+  height: 45px;
+  width: 130px;
+  padding: 5px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #000000;
+  background-color: var(--primary);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 5px #999;
+}
+
+#invoice-btn:hover {
+  background-color: #FFA500;
+}
+
+#invoice-btn:active {
+  background-color: #ddd;
+  transform: translateY(2px);
 }
 
 .red {
