@@ -38,7 +38,7 @@ proxyIsLoggedIn.value = isLoggedIn;
   padding: .5rem 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  color: var(--primary-inverse);
+  color: #FFFFFF;
 }
 
 /*.tab-button {
