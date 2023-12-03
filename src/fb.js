@@ -7,10 +7,11 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 let firebaseConfig;
-const isEmulating = window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
+// const isEmulating = window.location.hostname === "localhost" ||
+//   window.location.hostname === "127.0.0.1";
+const isEmulating = false;
 
-if (window.location.hostname === "https://aus-order-form.web.app/") {
+if (window.location.hostname === "aus-order-form.web.app") {
   // Your web app's Firebase configuration
   firebaseConfig = {
     apiKey: "AIzaSyAbq9QugYhv1muMYPtbu7luHV_AMTLak1Q",
