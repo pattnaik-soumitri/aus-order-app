@@ -7,11 +7,10 @@ import { getAuth, connectAuthEmulator } from "firebase/auth";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 let firebaseConfig;
-// const isEmulating = window.location.hostname === "localhost" ||
-//   window.location.hostname === "127.0.0.1";
-const isEmulating = true;
+const isEmulating = window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
-if (!isEmulating) {
+// if (isEmulating) {
   // Your web app's Firebase configuration
   firebaseConfig = {
     apiKey: "AIzaSyAbq9QugYhv1muMYPtbu7luHV_AMTLak1Q",
@@ -21,18 +20,18 @@ if (!isEmulating) {
     messagingSenderId: "943914175430",
     appId: "1:943914175430:web:bd256bf86aa0279fca80c7"
   };
-} else {
+// } else {
   // Your web app's Firebase Testing Configuration
-  firebaseConfig = {
-    apiKey: "AIzaSyBaOrPY98aOjeEWLbzjkADcK5m8hyPJjDY",
-    authDomain: "aus-order-app-test.firebaseapp.com",
-    projectId: "aus-order-app-test",
-    storageBucket: "aus-order-app-test.appspot.com",
-    messagingSenderId: "609627588452",
-    appId: "1:609627588452:web:813ba06e1db689b8509c71",
-    measurementId: "G-HHV0BYQ8YX"
-  };
-}
+//   firebaseConfig = {
+//     apiKey: "AIzaSyBaOrPY98aOjeEWLbzjkADcK5m8hyPJjDY",
+//     authDomain: "aus-order-app-test.firebaseapp.com",
+//     projectId: "aus-order-app-test",
+//     storageBucket: "aus-order-app-test.appspot.com",
+//     messagingSenderId: "609627588452",
+//     appId: "1:609627588452:web:813ba06e1db689b8509c71",
+//     measurementId: "G-HHV0BYQ8YX"
+//   };
+// }
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
