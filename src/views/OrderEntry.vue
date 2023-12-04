@@ -43,7 +43,6 @@ const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
   order.value.totalBillAmt = Math.round(totalOrderAmt);
-  console.log(`total bill amount is: ${Math.round(totalOrderAmt)}`);
 }
 
 // calculate total mrp amount
@@ -51,14 +50,12 @@ const calcTotalMrpAmount = () => {
   let totalMrpAmount = 0;
   itemTotalMrpPrices.forEach((value, key) => totalMrpAmount += value);
   order.value.totalMrpBillAmt = totalMrpAmount;
-  console.log(`total bill amount is: ${totalMrpAmount}`);
 }
 
 // for updating total discounted amt
 const itemTotalPrices = new Map();
 const updateTotalOrderAmt = (productName, itemAmount) => {
   itemTotalPrices.set(productName, itemAmount);
-  console.log(`item discount amount passed is: ${itemAmount} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalBillAmt();
 }
@@ -67,7 +64,6 @@ const updateTotalOrderAmt = (productName, itemAmount) => {
 const itemTotalMrpPrices = new Map();
 const updateTotalMrpAmt = (productName, mrpTotal) => {
   itemTotalMrpPrices.set(productName, mrpTotal);
-  console.log(`item mrp amount passed is: ${mrpTotal} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalMrpAmount();
 }
@@ -103,7 +99,6 @@ const submit = async () => {
     itemTotalPrices.clear();
     calcTotalBillAmt();
     order.value = {...blankOrder, items: [ {name: '', qty: 0} ], discount: 0};
-    console.log(`the order value of bill after doc write is: ${order.value.totalBillAmt}`);
     loading.value = false;
 }
 

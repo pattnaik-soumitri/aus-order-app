@@ -3,7 +3,7 @@ import OrderEntry from '@/views/OrderEntry.vue';
 import OrderList from '@/views/OrderList.vue';
 import LandingPage from '@/components/LandingPage.vue';
 import Analysis from '@/components/Analysis.vue';
-import { useSessionStore } from '../stores/userSessionStore';
+import { useSessionStore } from '@/stores/userSessionStore';
 
 const authCheck = () => {
   const session = useSessionStore();

@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import OrderItemRow from '../components/OrderItemRow.vue';
+import OrderItemRow from '@/components/OrderItemRow.vue';
 import { products } from '@/util/constants';
 import { fontNotoSansOriya } from '@/fonts/NotoSansOriya.js';
 import { db } from '@/fb';
@@ -40,7 +40,6 @@ const calcTotalBillAmt = () => {
   let totalOrderAmt = 0;
   itemTotalPrices.forEach((value, key) => totalOrderAmt += value);
   currentOrder.value.totalBillAmt = Math.round(totalOrderAmt);
-  console.log(`total bill amount is: ${Math.round(totalOrderAmt)}`);
 }
 
 // calculate total mrp amount
@@ -48,14 +47,12 @@ const calcTotalMrpAmount = () => {
   let totalMrpAmount = 0;
   itemTotalMrpPrices.forEach((value, key) => totalMrpAmount += value);
   currentOrder.value.totalMrpBillAmt =  Math.round(totalMrpAmount);
-  console.log(`total bill amount is: ${Math.round(totalMrpAmount)}`);
 }
 
 // for updating total discounted amt
 const itemTotalPrices = new Map();
 const updateTotalOrderAmt = (productName, itemAmount) => {
   itemTotalPrices.set(productName, itemAmount);
-  console.log(`item amount passed is: ${itemAmount} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalBillAmt();
 }
@@ -64,7 +61,6 @@ const updateTotalOrderAmt = (productName, itemAmount) => {
 const itemTotalMrpPrices = new Map();
 const updateTotalMrpAmt = (productName, mrpTotal) => {
   itemTotalMrpPrices.set(productName, mrpTotal);
-  console.log(`item mrp amount passed is: ${mrpTotal} for the product name: ${productName.value}`);
   // calculate the total order amount
   calcTotalMrpAmount();
 }
@@ -130,7 +126,7 @@ const addOrderItem = () => {
 }
 
 const isSaveButtonDisabled = computed(() => {
-    const noItem = currentOrder.valuecurrentOrder?.sln?.items == null || currentOrder.value?.items.length === 0;
+    const noItem = currentOrder.value?.items == null || currentOrder.value?.items.length === 0;
     const hasInvalidQuantity = currentOrder.value?.items.some(item => item.qty < 1);
 
     return hasInvalidQuantity || noItem;
@@ -169,7 +165,6 @@ const createPDF = (currentOrder) => {
   doc.setFontSize(contentFontSize);
   doc.text(`Invoice Number: ${currentOrder?.sln}`, 10, 35);
   doc.text(`Invoice Date: ${dateFormatted}`, 10, 35 + lineSpacing);
-  console.log(currentOrder?.orderDate);
 
   // Add 'Bill From' section
   doc.setFontSize(headingFontSize);
@@ -238,20 +233,11 @@ const createPDF = (currentOrder) => {
   // Calculate the sum of total values
   const totalSum = data.reduce((sum, item) => sum + parseFloat(item[5]), 0);
 
-  // Add the total
-  doc.setFontSize(headingFontSize);
-  doc.text(`Total: ${currencySymbol}${totalSum.toFixed(2)}`, 10, doc.autoTable.previous.finalY + 10);
-
   // Add the total, tax, and final amount
-  const total = totalSum;
-  const tax = total * 0.1; // Assuming a tax rate of 10%
-  const finalAmount = Math.round(total + tax, 2);
+  const finalAmount = Math.round(totalSum);
 
   doc.setFontSize(contentFontSize+1);
-  doc.text(`Total:    ${currencySymbol}${total.toFixed(2)}`, 150 + horizontalSpacing, doc.autoTable.previous.finalY + 10);
-  doc.text(`Tax:        ${currencySymbol}${tax.toFixed(2)}`, 150 + (horizontalSpacing + 0.9), doc.autoTable.previous.finalY + 2 * lineSpacing);
-  doc.text('____________________', 150 + horizontalSpacing, doc.autoTable.previous.finalY + 3 * (lineSpacing - 2));
-  doc.text(`Final:    ${currencySymbol}${finalAmount.toFixed(2)}`, 150 + (horizontalSpacing + 1), doc.autoTable.previous.finalY + 4 * (lineSpacing - 2));
+  doc.text(`Final Amt: ${currencySymbol}${finalAmount.toFixed(2)}`, 150, doc.autoTable.previous.finalY + 2 * (lineSpacing - 2));
 
   // Save the PDF
   doc.save(`Bill_${currentOrder?.sln}_(${dateFormatted}).pdf`);
