@@ -2,16 +2,17 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getAuth, connectAuthEmulator } from "firebase/auth";
+import {isEmulating, isProductionEnv} from './environment.js';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 let firebaseConfig;
-const isEmulating = window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
+console.log('isEmulating: ' + isEmulating);
+console.log('isProductionEnv: ' + isProductionEnv());
 
-// if (isEmulating) {
-  // Your web app's Firebase configuration
+if (isProductionEnv()) {
+  // Your web app's Prod Firebase configuration
   firebaseConfig = {
     apiKey: "AIzaSyAbq9QugYhv1muMYPtbu7luHV_AMTLak1Q",
     authDomain: "aus-order-form.firebaseapp.com",
@@ -20,18 +21,18 @@ const isEmulating = window.location.hostname === "localhost" ||
     messagingSenderId: "943914175430",
     appId: "1:943914175430:web:bd256bf86aa0279fca80c7"
   };
-// } else {
-  // Your web app's Firebase Testing Configuration
-//   firebaseConfig = {
-//     apiKey: "AIzaSyBaOrPY98aOjeEWLbzjkADcK5m8hyPJjDY",
-//     authDomain: "aus-order-app-test.firebaseapp.com",
-//     projectId: "aus-order-app-test",
-//     storageBucket: "aus-order-app-test.appspot.com",
-//     messagingSenderId: "609627588452",
-//     appId: "1:609627588452:web:813ba06e1db689b8509c71",
-//     measurementId: "G-HHV0BYQ8YX"
-//   };
-// }
+} else {
+  // Your web app's Staging Firebase configuration
+  firebaseConfig = {
+    apiKey: "AIzaSyBaOrPY98aOjeEWLbzjkADcK5m8hyPJjDY",
+    authDomain: "aus-order-app-test.firebaseapp.com",
+    projectId: "aus-order-app-test",
+    storageBucket: "aus-order-app-test.appspot.com",
+    messagingSenderId: "609627588452",
+    appId: "1:609627588452:web:813ba06e1db689b8509c71",
+    measurementId: "G-HHV0BYQ8YX"
+  };
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
