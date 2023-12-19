@@ -1,22 +1,35 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import { useSessionStore } from './stores/userSessionStore';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from './fb';
 
-const { isLoggedIn, logout } = useSessionStore();
+const { currentUser, removeUser} = useSessionStore();
 const router = useRouter();
 const route = useRoute();
 const path = computed(() => route.path);
 
-const proxyIsLoggedIn = ref(false);
+const proxyIsLoggedIn = ref(currentUser.isLoggedIn);
 
-// watch works directly on a ref
-watch(isLoggedIn, (newVal, oldVal) => {
-  proxyIsLoggedIn.value = newVal;
-  if(!newVal) {
-    router.push('/login');
-  }
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    proxyIsLoggedIn.value = !!user;
+  });
 });
+
+const logout = () => {
+  signOut(auth)
+      .then(() => {
+        console.log('Logged out');
+        removeUser();
+        proxyIsLoggedIn.value = false;
+        router.push('/login');
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+}
 </script>
 
 <template>

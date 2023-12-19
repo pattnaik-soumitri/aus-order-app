@@ -148,7 +148,7 @@ const createPDF = (currentOrder) => {
   // add the font to jsPDF
   doc.addFileToVFS("NotoSansOriya-Regular.ttf", fontNotoSansOriya);
   doc.addFont("NotoSansOriya-Regular.ttf", "NotoSansOriya", "normal");
-	doc.setFont("NotoSansOriya");
+  doc.setFont("NotoSansOriya");
 
   // Set the font sizes
   const titleFontSize = 18;

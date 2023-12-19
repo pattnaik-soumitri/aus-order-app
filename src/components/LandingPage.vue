@@ -13,10 +13,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useSessionStore } from '../stores/userSessionStore';
-const { isLoggedIn } = useSessionStore();
+const { currentUser } = useSessionStore();
 
 const proxyIsLoggedIn = ref(false);
-proxyIsLoggedIn.value = isLoggedIn;
+proxyIsLoggedIn.value = currentUser.isLoggedIn;
 </script>
 
 <style scoped>
@@ -41,32 +41,10 @@ proxyIsLoggedIn.value = isLoggedIn;
   color: #FFFFFF;
 }
 
-/*.tab-button {
-  padding: .5rem 1rem;
-  color: var(--contrast);
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}*/
-
-/*.tab-button:hover {
-  background-color: var(--secondary);
-}*/
-
 .tab-link.router-link-exact-active {
   background-color: var(--primary);
   color: var(--primary-inverse);
 }
-
-/* .router-view-container {
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid var(--secondary);
-  border-radius: 5px;
-  width: 100%;
-  text-align: -webkit-center;
-} */
 
 /* Responsive styles */
 @media (min-width: 600px) {
