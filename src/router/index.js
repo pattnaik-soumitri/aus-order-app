@@ -3,15 +3,10 @@ import OrderEntry from '@/views/OrderEntry.vue';
 import OrderList from '@/views/OrderList.vue';
 import LandingPage from '@/components/LandingPage.vue';
 import Analysis from '@/components/Analysis.vue';
-import { useSessionStore } from '../stores/userSessionStore';
-
-const authCheck = () => {
-  const session = useSessionStore();
-  if(!session.currentUser.isLoggedIn) {
-    return 'login';
-  }
-  return session.currentUser.isLoggedIn;
-}
+import {
+  onAuthStateChanged
+} from 'firebase/auth';
+import { auth } from '../fb';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -70,8 +65,32 @@ const router = createRouter({
   ]
 })
 
+// Get current user
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+      const removeListener = onAuthStateChanged(
+          auth,
+          (user) => {
+              removeListener();
+              resolve(user);
+          },
+          reject
+      );
+  });
+};
+
 // Global auth guard
-router.beforeEach((to, from) => to?.meta?.requiresAuth ? authCheck() : true);
+router.beforeEach(async(to, from, next) => {
+  if (to?.matched.some((record) => record.meta.requiresAuth)) {
+      if (await getCurrentUser()) {
+          next();
+      } else {
+          next('login');
+      }
+  } else {
+      next();
+  }
+});
 
 router.afterEach((toRoute, fromRoute) => {
   window.document.title = toRoute?.meta && toRoute?.meta?.title ? toRoute?.meta?.title : 'Aus Order App';
